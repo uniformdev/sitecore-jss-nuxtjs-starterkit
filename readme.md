@@ -23,7 +23,7 @@ There are multiple reasons why we are using Nuxt.js in this context:
 
 ## Repo structure
 
-- `/sitecore` - the required configuration files and content items for the demo site (Unicorn items and the package).
+- `/sitecore` - the required configuration files and content items for the demo site (Unicorn items and Sitecore package).
 - `/src` - the sources of the Vue/Nuxt.js app wired up with Uniform plugin.
 - `/docs` - documentation
 
@@ -32,8 +32,8 @@ There are multiple reasons why we are using Nuxt.js in this context:
 1. `Uniform.Sitecore.zip` package provided by the folks @ Uniform ([contact us for details](mailto:hi@unfrm.io)).
 1. Uniform license key provided by the folks @ Uniform ([contact us for details](mailto:hi@unfrm.io)).
 1. npm token provided by the folks @ Uniform ([contact us for details](mailto:hi@unfrm.io)).
-1. Sitecore 9.1.1 or 9.2 installed and up and running with Admin credentials.
-1. JSS.Server package installed and configured according to the official documentation.
+1. Sitecore 9.x (9.0 -> 9.3) installed and up and running with Admin credentials.
+1. JSS.Server package (version dependent on your Sitecore version) installed and configured according to the official documentation.
 
 ## Setting up the server-side
 
@@ -83,7 +83,7 @@ If you don't have a JSS app deployed, but want to experience Uniform, not a prob
 
 1. Deploy content items.
 
-- Option 1 (easiest): install the `Uniform SitecoreJSS Demo-items` package from `sitecore\` folder via Installation Wizard.
+- Option 1 (easiest): install [the `Uniform SitecoreJSS Demo-items` package](/sitecore/Uniform%20SitecoreJSS%20Demo-items.0.0.1.zip) from this repo's `sitecore\` folder using Installation Wizard.
 
 - Option 2: via [Unicorn](https://github.com/SitecoreUnicorn/Unicorn) (first, make sure Unicorn is installed and configured).
   1. copy the contents of the `sitecore\serialization` folder to your Sitecore instance's `App_Data\uniform-jss` folder, so the destination paths look like this:
