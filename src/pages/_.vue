@@ -12,12 +12,14 @@
       :is-full-page="true"
     />
     <sc-placeholder name="uniform-jss-content" :rendering="routeData" />
+    <Footer />
   </div>
 </template>
 
 <script>
 import { Placeholder } from '@sitecore-jss/sitecore-jss-vue';
 import { mapState } from 'vuex';
+import Footer from '../components/Footer/Footer';
 // note: `vue-loading-overlay` can be replaced by something custom, it was put in place as a sample
 // styles for the overlay are in `assets/css/vue-loading-overlay.css`
 import LoadingOverlay from 'vue-loading-overlay';
@@ -29,6 +31,7 @@ export default {
   components: {
     ScPlaceholder: Placeholder,
     LoadingOverlay,
+    Footer,
   },
   // Be sure to declare `head` as a function if you need to access component data, props,
   // computed properties, etc... within any of the `head` properties.
