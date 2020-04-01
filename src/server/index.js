@@ -19,6 +19,8 @@ const { getJssRenderingHostMiddleware } = require('./nuxt-jss-rendering-host-mid
 // const { attachDisconnectedServices } = require('./disconnected-mode-middleware');
 const { attachProxyMiddleware } = require('./proxy-middleware');
 const scJssConfig = require('../scjssconfig.json');
+const packageConfig = require('../package.json');
+scJssConfig.jssAppName = packageConfig.config.appName;
 
 // Resolve values
 const { resolveServerUrls } = require('./util');
