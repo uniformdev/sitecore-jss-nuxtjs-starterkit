@@ -54,24 +54,25 @@ There are multiple reasons why we are using Nuxt.js in this context:
      > This value will be used to secure the deployment endpoint during Sitecore publishing and should be changed to a secret value in non-developer environments. The same value should be used when setting the `UNIFORM_API_TOKEN` environment variable (see below).
 
    - `Uniform.LicenseKey` with the value of Uniform license key you've received:
+      ```
+      <add name="Uniform.LicenseKey" connectionString="LICENSE-KEY-GOES-HERE" />
+      ```
+      
+1. `Optional` alternative place for Uniform connection strings. Since these connection strings may not change frequently in development environment, consider adding these connection strings globally to IIS Manager (stored in `C:\Windows\Microsoft.NET\Framework64\v4.0.30319\config\web.config`):
 
-     <add name="Uniform.LicenseKey" connectionString="LICENSE-KEY-GOES-HERE" />
+      1.  Open IIS Manager
+      1.  Select your computer name in the tree on the left
+      1.  Select Connection Strings
+      1.  Click Add in the right panel
+      1.  Fill in the dialog with values from bulleted list above
 
-> Since these connection strings may not change frequently in development environment, consider adding these connection strings globally to IIS Manager (stored in `C:\Windows\Microsoft.NET\Framework64\v4.0.30319\config\web.config`):
-
-1.  Open IIS Manager
-1.  Select your computer name in the tree on the left
-1.  Select Connection Strings
-1.  Click Add in the right panel
-1.  Fill in the dialog with values from bulleted list above
-
-```
-Name: connection-string-name
-( ) SQL Server
-(x) Custom
-   .------------------------
-   | connection-string-value
-```
+      ```
+      Name: connection-string-name
+      ( ) SQL Server
+      (x) Custom
+         .------------------------
+         | connection-string-value
+      ```
 
 ### Optional - sample JSS app deployment
 
@@ -93,9 +94,9 @@ If you don't have a JSS app deployed, but want to experience Uniform, not a prob
 
 ### Quick test of the server-side
 
-Verify everything is working by making request to `http://your-sitecore-instance/api/map/uniform-jss`
+Verify everything is working by making request to `http://your-sitecore-instance/api/map/website` (or `http://your-sitecore-instance/api/map/uniform-jss` if you installed the sample site from this repo).
 
-> Please note that the last part of the url above (`uniform-jss`) corresponds to the site name. So if you didn't deploy the sample JSS app from this repo using the steps above, this value will likely be different and will correspond to the site name your JSS app is associated with. If not sure, use `website`.
+The last last part of the url above (`/website` or `/uniform-jss`) corresponds to the site name. So if you didn't deploy the sample JSS app from this repo using the steps above, this value will likely be different and will correspond to the site name your JSS app is associated with. If not sure, use `website`.
 
 The following response is expected (will be different if you are using another JSS app but JSON with the following structure is expected to be returned):
 
@@ -133,7 +134,7 @@ The following response is expected (will be different if you are using another J
    UNIFORM_DATA_URL=http://your-sc-host
    ```
 
-   There are more environment variables available to specify - see `_defaultConfig.js` file for all default values. Naturally, these environment variables can be tweaked according to your environment specific by corresponding entries to the `.env` file:
+   There are more environment variables available to specify - see [`uniform.config.js`](/src/uniform.config.js) file in `/src` folder for all default values. Naturally, these environment variables can be tweaked according to your environment specific by corresponding entries to the `.env` file:
 
    ```
    UNIFORM_API_TOKEN=1234
