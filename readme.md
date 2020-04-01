@@ -189,7 +189,7 @@ As of now, media/image support is not availble in public version of Uniform ([co
 
 In meantime, there are multiple alternatives as to how you can configure media handling for your JAMstackified Sitecore site:
 
-1. Have your Sitecore Content Delivery origin handle Media Library requests (this is enabled with `Media.AlwaysIncludeServerUrl=true` setting enabled in `Habitat.UniformSettings.config` config patch included in this repo).
+1. Have your Sitecore Content Delivery origin handle Media Library requests (this is enabled with `Media.AlwaysIncludeServerUrl=true` setting enabled in `uniform-jss.config` config patch included in this repo).
 1. Configure a "pull-based" CDN for Sitecore Media Library - [it is quite straightforward](https://doc.sitecore.com/developers/91/sitecore-experience-manager/en/manually-configure-the-sitecore-media-library-to-use-a-cdn.html). Besides the usual suspects, such as Akamai, Cloudflare and Cloudfront, there is a set of cool smart image CDNs to consider that are very much plug and play:
    - [CloudImage](https://www.cloudimage.io/)
    - [Cloudinary](https://cloudinary.com/)
@@ -342,7 +342,7 @@ You need to setup your JSS app definition config in `uniform-jss.config`. Be sur
 
 ```
 
-Notice the `serverSideRenderingEngine` attribute is set to `http` and the `serverSideRenderingEngineEndpointUrl` is set to the host your Next+JSS app is running on.
+Notice the `serverSideRenderingEngine` attribute is set to `http` and the `serverSideRenderingEngineEndpointUrl` is set to the host your Nuxt+JSS app is running on.
 
 ### Configure deployment on Sitecore publish
 
