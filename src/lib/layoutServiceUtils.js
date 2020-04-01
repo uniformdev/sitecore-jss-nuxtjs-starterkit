@@ -14,7 +14,11 @@ function getRouteData(route, language, requestClient, config, nuxtContext) {
     // that cookies are properly maintained. Therefore, we leave the Layout Service
     // config `host` value empty. The Nuxt server will then handle requests for `/sitecore/api/layout/...`
     layoutServiceConfig: { host: '' },
-    querystringParams: { sc_lang: language, sc_apikey: config.sitecoreApiKey },
+    querystringParams: {
+      sc_lang: language,
+      sc_apikey: config.sitecoreApiKey,
+      sc_site: config.jssAppName,
+    },
     fetcher: createDataFetcher(requestClient),
   };
 

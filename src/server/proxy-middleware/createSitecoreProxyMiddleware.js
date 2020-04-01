@@ -90,6 +90,7 @@ function createSitecoreProxyMiddleware({
       const sitecoreRoute = ensureLeadingSlash(resolvedRoute.params.sitecoreRoute);
       targetQueryStringParams.set('item', sitecoreRoute);
       targetQueryStringParams.set('sc_apikey', jssConfig.sitecore.apiKey);
+      targetQueryStringParams.set('sc_site', jssConfig.jssAppName);
       if (resolvedRoute.params.language) {
         targetQueryStringParams.set('sc_lang', resolvedRoute.params.language);
       }
