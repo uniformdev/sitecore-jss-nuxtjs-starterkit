@@ -21,11 +21,8 @@ import { Placeholder } from '@sitecore-jss/sitecore-jss-vue';
 import { mapState } from 'vuex';
 import Footer from '../components/Footer/Footer';
 // note: `vue-loading-overlay` can be replaced by something custom, it was put in place as a sample
-// styles for the overlay are in `assets/css/vue-loading-overlay.css`
+// styles for the overlay are declared in the `<style />` section of this component.
 import LoadingOverlay from 'vue-loading-overlay';
-/* purgecss start ignore */
-import '~/assets/css/vue-loading-overlay.css';
-/* purgecss end ignore */
 
 export default {
   components: {
@@ -106,3 +103,47 @@ export default {
   },
 };
 </script>
+
+<!--
+note: styles for the loading overlay component are declared here instead of in a separate file.
+This is primarily to avoid an issue with purgeCSS being too aggressive during production build
+and removing the separate file containing overlay component styles.
+-->
+<style>
+.vld-overlay {
+  bottom: 0;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+  align-items: center;
+  display: none;
+  justify-content: center;
+  overflow: hidden;
+  z-index: 9999;
+}
+
+.vld-overlay.is-active {
+  display: flex;
+}
+
+.vld-overlay.is-full-page {
+  z-index: 9999;
+  position: fixed;
+}
+
+.vld-overlay .vld-background {
+  bottom: 0;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+  background: #fff;
+  opacity: 0.5;
+}
+
+.vld-overlay .vld-icon,
+.vld-parent {
+  position: relative;
+}
+</style>
