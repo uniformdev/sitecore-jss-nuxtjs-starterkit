@@ -4,7 +4,7 @@ import axiosBackend from './i18next-axios-backend';
 import { getConfig } from '../temp/config';
 
 export default function(context) {
-  const { req, params, store, isStatic } = context;
+  const { req, params, store } = context;
 
   const config = getConfig();
 
@@ -15,7 +15,7 @@ export default function(context) {
 
   // `req` is only defined for SSR.
   // If in SSR or static export, we need to initialize i18n using the route language parameter, using the default language as fallback.
-  if (req || isStatic) {
+  if (req || (process.env.NUXT_EXPORT && process.env.NUXT_EXPORT === 'true')) {
     initValues.language = params.lang || config.defaultLanguage;
     initValues.dictionary = null;
   } else {

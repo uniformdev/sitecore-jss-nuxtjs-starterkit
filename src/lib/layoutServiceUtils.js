@@ -23,8 +23,9 @@ function getRouteData(route, language, requestClient, config, nuxtContext) {
   };
 
   if (
+    process.env.NUXT_EXPORT &&
+    process.env.NUXT_EXPORT === 'true' &&
     nuxtContext &&
-    nuxtContext.isStatic &&
     nuxtContext.app &&
     nuxtContext.app.getExportRouteDataContext
   ) {
