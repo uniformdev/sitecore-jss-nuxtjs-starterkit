@@ -6,10 +6,13 @@ const cors = require('cors');
 const compression = require('compression');
 const Router = require('vue-router');
 const nodePath = require('path');
+const { attachUniformServicesToServer } = require('@uniformdev/common-server');
+const { NuxtBuildAndExportEngine } = require('@uniformdev/nuxt-server');
 
 // Process values provided in `.env` file(s)
-const { config: dotenvConfig } = require('dotenv');
-dotenvConfig();
+const uniformConfig = require('../uniform.config').getUniformServerConfig();
+console.log('site name', uniformConfig.UNIFORM_API_SITENAME);
+console.log('');
 
 // Import Nuxt.js config
 const nuxtConfig = require('../nuxt.config.js');
@@ -21,6 +24,9 @@ const { attachProxyMiddleware } = require('./proxy-middleware');
 const scJssConfig = require('../scjssconfig.json');
 const packageConfig = require('../package.json');
 scJssConfig.jssAppName = packageConfig.config.appName;
+
+// Import a logger
+const { consoleLogger } = require('../utils/logging/consoleLogger');
 
 // Resolve values
 const { resolveServerUrls } = require('./util');
@@ -74,6 +80,13 @@ async function start() {
       serverUrl: tunnelUrl || serverUrl,
     })
   );
+
+  // Attach Uniform-specific middleware / functionality to the server.
+  // IMPORTANT: be sure to attach Uniform middleware prior to any JSS proxy
+  // middleware or other middleware that uses a "catch-all" handler, e.g. `server.use('*')`.
+  // Otherwise, requests for Uniform services will be handled by the catch-all. This is
+  // likely true for any other non-Uniform middleware you attach as well.
+  attachUniformServices(server, uniformConfig);
 
   if (jssMode === 'disconnected') {
     // Setup JSS disconnected mode support.
@@ -147,5 +160,14 @@ function attachProxy(server) {
     jssConfig: scJssConfig,
     isDevEnv: dev,
     layoutServiceRouteResolver,
+  });
+}
+
+// Setup Uniform config and attach Uniform-specific middleware to the existing server.
+function attachUniformServices(server, uniformServerConfig) {
+  const buildAndExportEngine = new NuxtBuildAndExportEngine(uniformServerConfig);
+
+  attachUniformServicesToServer(server, buildAndExportEngine, consoleLogger, {
+    uniformServerConfig,
   });
 }

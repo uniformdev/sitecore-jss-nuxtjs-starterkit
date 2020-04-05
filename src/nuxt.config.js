@@ -1,12 +1,10 @@
-require('dotenv').config();
-
-const uniformConfig = require('./uniform.config').getUniformConfig();
+require('./uniform.config').getUniformConfig();
 const { config: getUniformNuxtConfig } = require('@uniformdev/nuxt-server');
 const WebpackRequireFromPlugin = require('webpack-require-from');
 const { consoleLogger } = require('./utils/logging/consoleLogger');
 const { resolveServerUrls } = require('./server/util');
 
-const uniformNuxtConfig = getUniformNuxtConfig(uniformConfig, consoleLogger);
+const uniformNuxtConfig = getUniformNuxtConfig(consoleLogger);
 const nuxtConfig = {
   ...uniformNuxtConfig,
   mode: 'universal',
