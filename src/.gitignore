@@ -96,3 +96,6 @@ sw.*
 /scjssconfig.json
 
 netlify.config.json
+
+# Uniform temp folder
+.temp
