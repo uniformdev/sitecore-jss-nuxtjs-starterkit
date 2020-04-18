@@ -1,5 +1,5 @@
 <template>
-  <nuxt-link to="/" title="Logo image link">
+  <nuxt-link-wrapper to="/" title="Logo image link">
     <svg width="50px" height="57px" viewBox="0 0 100 100">
       <g id="Update" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
         <g id="02_landing" transform="translate(-30.000000, -30.000000)">
@@ -30,5 +30,14 @@
         </g>
       </g>
     </svg>
-  </nuxt-link>
+  </nuxt-link-wrapper>
 </template>
+
+<script>
+import NuxtLinkWrapper from '../NuxtLinkWrapper/NuxtLinkWrapper';
+export default {
+  components: {
+    NuxtLinkWrapper,
+  },
+};
+</script>
