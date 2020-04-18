@@ -42,6 +42,10 @@ function getRouteData(route, language, requestClient, config, nuxtContext) {
       })
       .then(() => apiData);
   } else if (process.env.NODE_ENV === 'production') {
+    // If we're in production mode and not running a static site, then fetch directly from API.
+    if (!process.static) {
+      return fetchFromApi(route, fetchOptions);
+    }
     // production mode (i.e. the app is "running" somewhere)
     // Attempt to fetch layout data from disk, and fall back to Layout Service if disk fetch returns 404.
     return fetchFromDisk(route, language, fetchOptions.fetcher).catch((err) => {
