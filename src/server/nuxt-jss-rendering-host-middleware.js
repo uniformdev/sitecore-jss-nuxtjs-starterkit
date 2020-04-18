@@ -2,9 +2,8 @@ module.exports = {
   getJssRenderingHostMiddleware,
 };
 
-function getJssRenderingHostMiddleware(app, scJssConfig, { serverUrl = '', routeResolver }) {
+function getJssRenderingHostMiddleware(app, scJssConfig, { serverUrl = '' }) {
   return async function middleware(req, res) {
-    console.log('rendering host handling request', req.url);
     req.setTimeout(36000, () => {
       console.error('request timed out');
     });
@@ -17,6 +16,9 @@ function getJssRenderingHostMiddleware(app, scJssConfig, { serverUrl = '', route
       req.method = 'GET';
       // nuxt.js reads from the req.url property, so set it accordingly
       req.url = jssData.renderPath;
+
+      console.log('rendering host handling request', req.url);
+
       // Allows the app to easily determine whether or not it is being rendered via JSS rendering host.
       req.isJssRenderingHostRequest = true;
       // Attach the parsed JSS data as an arbitrary property on the `req` object
@@ -42,17 +44,9 @@ function getJssRenderingHostMiddleware(app, scJssConfig, { serverUrl = '', route
         handleAssetPrefixStuff(app);
       }
 
-      let routeInfo = {
+      const routeInfo = {
         pathname: jssData.renderPath,
       };
-
-      // If we have a custom route resolver, then call it with the incoming path and query/param data.
-      // The custom route resolver can then handle mapping route path to actual path.
-      // This is mostly useful for "dynamic" routes, where a single page (e.g. pages/index.js) is intended
-      // to serve routes that aren't statically known by the app. For instance, Sitecore routes that are dynamic.
-      if (routeResolver && typeof routeResolver === 'function') {
-        routeInfo = routeResolver(routeInfo);
-      }
 
       // render app and return
       // renderResult is an object: { html, error, redirected }
