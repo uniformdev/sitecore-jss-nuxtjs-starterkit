@@ -8,11 +8,11 @@ const Router = require('vue-router');
 const nodePath = require('path');
 const { attachUniformServicesToServer } = require('@uniformdev/common-server');
 const { NuxtBuildAndExportEngine } = require('@uniformdev/nuxt-server');
+const { createPublishProvider } = require('@uniformdev/publishing-all');
 
 // Process values provided in `.env` file(s)
 const uniformConfig = require('../uniform.config').getUniformServerConfig();
 console.log('site name', uniformConfig.UNIFORM_API_SITENAME);
-console.log('');
 
 // Import Nuxt.js config
 const nuxtConfig = require('../nuxt.config.js');
@@ -167,7 +167,10 @@ function attachProxy(server) {
 function attachUniformServices(server, uniformServerConfig) {
   const buildAndExportEngine = new NuxtBuildAndExportEngine(uniformServerConfig);
 
-  attachUniformServicesToServer(server, buildAndExportEngine, consoleLogger, {
+  const options = {
     uniformServerConfig,
-  });
+    publishProvider: createPublishProvider(),
+  };
+
+  attachUniformServicesToServer(server, buildAndExportEngine, consoleLogger, options);
 }
