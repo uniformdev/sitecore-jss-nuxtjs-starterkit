@@ -1,12 +1,16 @@
-const { createSitecoreProxyMiddleware } = require('./createSitecoreProxyMiddleware');
-
 module.exports = {
-  attachProxyMiddleware,
+  getProxyConfiguration,
 };
 
-function attachProxyMiddleware({ server, jssConfig, isDevEnv, layoutServiceRouteResolver }) {
+function getProxyConfiguration({
+  jssConfig,
+  isDevEnv,
+  layoutServiceRouteResolver,
+  doNotProxyPrefixesList = [],
+  shouldDirectProxyPrefixList = [],
+}) {
   // These are _prefixes_ for routes that should not be proxied at all.
-  const doNotProxyList = ['/_nuxt', '/__webpack_hmr', '/static', '/fonts'];
+  const doNotProxyList = ['/static', '/fonts'].concat(doNotProxyPrefixesList);
 
   // These are _prefixes_ for routes that should be directly proxied to Sitecore.
   const shouldDirectProxyList = [
@@ -17,16 +21,16 @@ function attachProxyMiddleware({ server, jssConfig, isDevEnv, layoutServiceRoute
     '/_/media',
     '/_/jssmedia',
     '/layouts/system',
-  ];
+  ].concat(shouldDirectProxyPrefixList);
 
-  const proxyMiddleware = createSitecoreProxyMiddleware({
+  const proxyConfiguration = {
     // JSS configuration
     jssConfig,
     doNotProxyResolver: getDoNotProxyResolver(doNotProxyList),
     shouldDirectProxyResolver: getShouldProxyResolver(shouldDirectProxyList),
 
-    // This function attempts to resolve a matching app route for the current request. The match should
-    // return an object in the format: { params: { sitecoreRoute, language } }
+    // The `layoutServiceRouteResolver` function attempts to resolve a matching app route for the current request.
+    // The match should return an object in the format: { params: { sitecoreRoute, language } }
     // Where `sitecoreRoute` is the value that will be used for the `item` parameter in a Layout Service request,
     // and `language` is the value that will be used for the `sc_lang` parameter in a Layout Service request.
     layoutServiceRouteResolver,
@@ -36,9 +40,9 @@ function attachProxyMiddleware({ server, jssConfig, isDevEnv, layoutServiceRoute
       modifyLayoutServiceData: getModifyLayoutServiceData(),
       handleProxyRedirect: getHandleProxyRedirect(jssConfig),
     },
-  });
+  };
 
-  server.use(proxyMiddleware);
+  return proxyConfiguration;
 }
 
 function getDoNotProxyResolver(doNotProxyList) {
@@ -76,16 +80,16 @@ function getModifyCookies(isDevEnv) {
     cookies.forEach((cookie) => {
       if (cookie.name === '.AspNet.Cookies') {
         if (isDevEnv) {
-          // In development, we are making requests from an insecure origin, e.g. http://jss-dev.uniform.dev
+          // In development, we are making requests from an insecure origin, e.g. http://jss.local.dev
           // The `.AspNet.Cookies` cookie, however, is flagged as `Secure`, so it won't be set
           // for an insecure origin.
           // Therefore, when in development mode, we remove the `Secure` property from the cookie.
           cookie.secure = false;
         }
-        // We want to share the .AspNet.Cookies cookie across `uniform.dev` domains, so we
+        // We may want to share the .AspNet.Cookies cookie across domains, so we
         // set the `domain` value.
         // NOTE: this should probably be set on the Sitecore server intead.
-        cookie.domain = '.uniform.dev';
+        // cookie.domain = '.mydomain.com';
       }
     });
   };

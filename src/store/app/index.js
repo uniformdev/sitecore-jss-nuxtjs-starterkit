@@ -1,4 +1,3 @@
-import axios from 'axios';
 import { createLayoutServiceClient } from '../../lib/layoutServiceUtils';
 import { getConfig } from '../../temp/config';
 
@@ -9,6 +8,7 @@ export const state = () => ({
   dictionary: null,
   currentRoute: '',
   routeDataFetchStatus: '',
+  routeDataFetchError: null,
 });
 
 export const mutations = {
@@ -34,8 +34,9 @@ export const mutations = {
   setCurrentRoute(state, { route }) {
     state.currentRoute = route;
   },
-  setRouteDataFetchStatus(state, { status }) {
+  setRouteDataFetchStatus(state, { status, error }) {
     state.routeDataFetchStatus = status;
+    state.routeDataFetchError = error;
   },
 };
 
@@ -55,17 +56,23 @@ export const actions = {
     } else {
       // This is a client-side request for layout data, e.g. route change.
       const config = getConfig();
-      const layoutServiceClient = createLayoutServiceClient(axios, config, { nuxtContext });
+      const layoutServiceClient = createLayoutServiceClient(config, { nuxtContext });
 
-      context.commit('setRouteDataFetchStatus', { status: 'loading' });
+      context.commit('setRouteDataFetchStatus', { status: 'loading', error: null });
       return layoutServiceClient
         .getRouteData(route, language)
         .then((layoutData) => {
           context.commit('setLayoutData', { layoutData });
           context.commit('setCurrentRoute', { route });
-          context.commit('setRouteDataFetchStatus', { status: '' });
+          context.commit('setRouteDataFetchStatus', { status: '', error: null });
         })
-        .catch(() => context.commit('setRouteDataFetchStatus', { status: 'error' }));
+        .catch((error) => {
+          if (error.response && error.response.data && error.response.data.sitecore) {
+            context.commit('setLayoutData', { layoutData: error.response.data });
+          }
+          context.commit('setCurrentRoute', { route });
+          context.commit('setRouteDataFetchStatus', { status: 'error', error });
+        });
     }
   },
   nuxtServerInit(nuxtContext) {

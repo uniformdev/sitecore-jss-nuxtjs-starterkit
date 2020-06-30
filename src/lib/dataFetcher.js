@@ -1,6 +1,4 @@
-export function createDataFetcher(requestClient) {
-  return (url, data) => dataFetcher(url, data, requestClient);
-}
+import axios from 'axios';
 
 /**
  * Implements a data fetcher using Axios - replace with your favorite
@@ -9,9 +7,9 @@ export function createDataFetcher(requestClient) {
  * @param {string} url The URL to request; may include query string
  * @param {any} data Optional data to POST with the request.
  */
-function dataFetcher(url, data, requestClient) {
+export function dataFetcher(url, data) {
   console.log('fetching data', url);
-  return requestClient({
+  return axios({
     url,
     method: data ? 'POST' : 'GET',
     data,

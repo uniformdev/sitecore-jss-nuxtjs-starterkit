@@ -1,0 +1,89 @@
+{
+  "pageEditing": false,
+  "site": { "name": "website" },
+  "pageState": "normal",
+  "language": "en",
+  "personalization": {
+    "rules": {
+      "70886a78-86e8-48b8-b023-46d0816c8400": [
+        {
+          "id": "8563e333-ef77-46e4-b267-a1f0fa067413",
+          "name": "Bluekai rule",
+          "condition": "return (function(){var c=(a, b)=>(a && b) ? a.toLowerCase().indexOf(b.toLowerCase()) != -1 : false; var m = document.cookie.match(new RegExp('(^| )uniform.bluekai=([^;]+)')); if (m) { return c(m[2], 'Sitecore+-+Business+Traveler+Audience')}return false;})();",
+          "data": "320c2c78-d198-42d7-b69e-39f00134bca5",
+          "component": "fb53db9e-75b0-4dbd-a14b-3bd053ecef59"
+        },
+        {
+          "id": "54c3e333-ef77-46e4-b267-a1f0fa067413",
+          "name": "Query string rule",
+          "condition": "return new URLSearchParams(window.location.search).has(\"uniform-parameter\");",
+          "data": "d50afb41-e95d-40d2-b0a8-b5d318d00dd2",
+          "component": "fb53db9e-75b0-4dbd-a14b-3bd053ecef59"
+        },
+        {
+          "id": null,
+          "name": "Default",
+          "condition": "return true;",
+          "data": "global-default-hero",
+          "component": "fb53db9e-75b0-4dbd-a14b-3bd053ecef59"
+        }
+      ]
+    },
+    "data": {
+      "320c2c78-d198-42d7-b69e-39f00134bca5": {
+        "subtitle": { "value": "BlueKai cookie rule data source" },
+        "title": { "value": "Hero for BlueKai cookie" },
+        "text": {
+          "value": "This is the data source set on the rule that depends on a BlueKai cookie being set."
+        }
+      },
+      "d50afb41-e95d-40d2-b0a8-b5d318d00dd2": {
+        "subtitle": { "value": "Query string parameter rule data source" },
+        "title": { "value": "Hero for query string" },
+        "text": {
+          "value": "This is the data source set on the rule that depends on the query string parameter uniform-parameter being set."
+        }
+      },
+      "global-default-hero": {
+        "subtitle": { "value": "Rendering data source" },
+        "title": { "value": "Hero set on rendering" },
+        "text": { "value": "This is the data source set on the rendering." }
+      }
+    }
+  },
+  "tracking": {
+    "campaigns": {
+      "f5e4b73b-9843-44db-9ce7-bc372440d74b": { "name": "Test Campaign" }
+    },
+    "events": {
+      "35f570b4-5ea6-4313-9653-3787966ea377": {
+        "name": "Business Travel Page Viewed",
+        "points": 0.0
+      }
+    },
+    "profiles": {
+      "24dff2cf-b30a-4b75-8967-2fe3ded82271": {
+        "name": "Focus",
+        "keys": {
+          "03379af5-f1ae-4610-b15b-4c7f1032b464": {
+            "key": "Background",
+            "value": 1.0
+          },
+          "5fdd9829-e689-454d-9abc-8f95ae68744c": {
+            "key": "Practical",
+            "value": 2.0
+          },
+          "f5652c06-676b-4e12-a9d0-06d000e5f1c8": {
+            "key": "Process",
+            "value": 3.0
+          },
+          "b32bfacc-3494-4127-b050-cf50078e2b4c": {
+            "key": "Scope",
+            "value": 4.0
+          }
+        },
+        "total": 10.0
+      }
+    }
+  }
+}

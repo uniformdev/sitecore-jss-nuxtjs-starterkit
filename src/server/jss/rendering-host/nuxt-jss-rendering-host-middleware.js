@@ -2,7 +2,13 @@ module.exports = {
   getJssRenderingHostMiddleware,
 };
 
-function getJssRenderingHostMiddleware(app, scJssConfig, { serverUrl = '' }) {
+function getJssRenderingHostMiddleware({
+  app,
+  renderingHostPublicUrl = '',
+  sitecoreApiKey,
+  sitecoreApiHost,
+  sitecoreSiteName,
+} = {}) {
   return async function middleware(req, res) {
     req.setTimeout(36000, () => {
       console.error('request timed out');
@@ -23,24 +29,25 @@ function getJssRenderingHostMiddleware(app, scJssConfig, { serverUrl = '' }) {
       req.isJssRenderingHostRequest = true;
       // Attach the parsed JSS data as an arbitrary property on the `req` object
       req.jssData = jssData;
-      // Attach the JSS config values. This should contain the _remote_ `layoutServiceHost` value directly
-      // from `scjssconfig.json` (or tokenized value or similar), not the generated values from `temp/config.js`.
+      // Attach the JSS config values. These should be the _remote_ `sitecoreApiHost`, `sitecoreApiKey`,
+      // and `sitecoreSiteName` values, not necessarily the same as the generated values from `temp/config.js`.
       // This allows us to override the generated config values at runtime. Otherwise, when the app is
       // served by the Sitecore server, the JSS app may be making layout service/dictionary service requests
       // to the `sitecoreApiHost` value specified in `temp/config.js`. And that value could be,
       // for example, `localhost:3000` if running the app in disconnected mode. That could result in
       // CORS errors and unexpected data. So, we provide the remote/"connected" mode config values so the app can
       // use those when necessary.
-      if (scJssConfig) {
+      if (sitecoreApiKey || sitecoreApiHost || sitecoreSiteName) {
         req.jssConfig = {
-          sitecoreApiKey: scJssConfig.sitecore.apiKey,
-          sitecoreApiHost: scJssConfig.sitecore.layoutServiceHost,
+          sitecoreApiKey,
+          sitecoreApiHost,
+          sitecoreSiteName,
         };
       }
 
-      if (serverUrl) {
-        // If a serverUrl has been specified (which it almost always should), then
-        // we need to ensure that asset URLs are prefixed with the serverUrl.
+      if (renderingHostPublicUrl) {
+        // If a renderingHostPublicUrl has been specified (which it almost always should), then
+        // we need to ensure that asset URLs are prefixed with the renderingHostPublicUrl.
         handleAssetPrefixStuff(app);
       }
 
@@ -51,7 +58,11 @@ function getJssRenderingHostMiddleware(app, scJssConfig, { serverUrl = '' }) {
       // render app and return
       // renderResult is an object: { html, error, redirected }
       const renderResult = app.renderRouteWithAssetPrefix
-        ? await app.renderRouteWithAssetPrefix(routeInfo.pathname, { req, res, serverUrl })
+        ? await app.renderRouteWithAssetPrefix(routeInfo.pathname, {
+            req,
+            res,
+            renderingHostPublicUrl,
+          })
         : await app.renderRoute(routeInfo.pathname, { req, res });
 
       // TODO: need to handle 404 and/or redirect
@@ -79,9 +90,12 @@ function getJssRenderingHostMiddleware(app, scJssConfig, { serverUrl = '' }) {
   };
 }
 
+// TODO: https://github.com/nuxt/nuxt.js/pull/7168
+// Does the above PR/change allow us to "inject" a public path?
+
 function handleAssetPrefixStuff(app) {
-  // If a serverUrl has been specified (which it almost always should), then
-  // we need to ensure that asset URLs are prefixed with the serverUrl.
+  // If a renderingHostPublicUrl has been specified (which it almost always should), then
+  // we need to ensure that asset URLs are prefixed with the renderingHostPublicUrl.
   // By default, Nuxt will emit asset URLs using the `publicPath` value as the path to assets.
 
   // Unfortunately, Nuxt does not provide a great mechanism to set `publicPath` on a per-request basis.
@@ -109,14 +123,14 @@ function handleAssetPrefixStuff(app) {
 
   // NOTE: this approach does _not_ affect static assets in the `static` folder nor
   // any assets that are `import`-ed within components. You'll have to use
-  // another mechanism to prefix those types of assets with the serverUrl.
+  // another mechanism to prefix those types of assets with the renderingHostPublicUrl.
 
-  app.renderRouteWithAssetPrefix = async (route, { req, res, serverUrl }) => {
+  app.renderRouteWithAssetPrefix = async (route, { req, res, renderingHostPublicUrl }) => {
     // To help the "other mechanism" mentioned above, we also attach an arbitrary property
     // to the `req` object that can then be used within the `asyncData` method of components or pages
     // to provide a value that can be used for static asset URLs.
     // NOTE: this is a runtime-generated value, so using it for webpack builds isn't feasible.
-    req.assetPrefix = serverUrl;
+    req.assetPrefix = renderingHostPublicUrl;
 
     const renderResult = await app.renderRoute(route, {
       req,
@@ -132,7 +146,7 @@ function handleAssetPrefixStuff(app) {
     // URL to our Nuxt server instead of a relative path that will resolve to the Sitecore server.
     renderResult.html = renderResult.html.replace(
       '</head>',
-      `<script>window.__nuxt_public_path__ = '${serverUrl}${app.renderer.publicPath}';</script></head>`
+      `<script>window.__nuxt_public_path__ = '${renderingHostPublicUrl}${app.renderer.publicPath}';</script></head>`
     );
 
     return renderResult;

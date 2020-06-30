@@ -5,23 +5,26 @@
   "config": {
     "appName": "uniform-jss",
     "rootPlaceholders": [
-      "jss-main"
+      "uniform-jss-content"
     ],
     "sitecoreConfigPath": "/App_Config/Include/zzz",
     "graphQLEndpointPath": "/api/uniform-jss",
     "language": "en"
   },
   "scripts": {
+    "bootstrap:connected": "node scripts/bootstrap.js",
+    "bootstrap:connected:export": "node scripts/bootstrap.js --export",
+    "bootstrap:disconnected": "node scripts/bootstrap.js --disconnected",
+    "bootstrap:disconnected:export": "node scripts/bootstrap.js --disconnected --export",
     "start": "cross-env-shell JSS_MODE=connected \"npm-run-all --serial bootstrap:connected --parallel start:dev watch-components\"",
+    "start:disconnected": "cross-env-shell JSS_MODE=disconnected \"npm-run-all --serial bootstrap:disconnected --parallel start:dev watch-components\"",
     "start:withtunnel": "cross-env-shell JSS_MODE=connected \"npm-run-all --serial bootstrap:connected --parallel start:dev:withtunnel watch-components\"",
     "start:production": "cross-env-shell JSS_MODE=connected NODE_ENV=production \"npm-run-all --serial bootstrap:connected nuxt:build start:server",
-    "start:dev": "cross-env NODE_ENV=development nodemon server/index.js --watch server",
+    "start:dev": "cross-env NODE_ENV=development nodemon server/server.js --watch server",
     "start:dev:withtunnel": "cross-env NODE_ENV=development nodemon server/tunnel.js --watch server --ignore server/tunnel.js",
     "nuxt:build": "nuxt build",
-    "start:server": "node server/index.js",
+    "start:server": "node server/server.js",
     "watch-components": "node scripts/generate-component-factory.js --watch",
-    "bootstrap:connected": "node scripts/bootstrap.js",
-    "bootstrap:disconnected": "node scripts/bootstrap.js --disconnected",
     "nuxt:generate": "cross-env NUXT_EXPORT=true nuxt generate",
     "export": "npm-run-all --serial jssconfig bootstrap:connected nuxt:generate",
     "jssconfig": "node ./scripts/create-scjssconfig.js",

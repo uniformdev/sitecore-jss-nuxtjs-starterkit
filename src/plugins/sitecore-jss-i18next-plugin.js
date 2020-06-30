@@ -120,7 +120,7 @@ function i18nInit(language, dictionary) {
     partialBundledLanguages: true,
   };
 
-  const dictionaryServicePath = `${config.sitecoreApiHost}/sitecore/api/jss/dictionary/${config.jssAppName}/{{lng}}?sc_apikey=${config.sitecoreApiKey}&sc_site=${config.jssAppName}`;
+  const dictionaryServicePath = `${config.sitecoreApiHost}/sitecore/api/jss/dictionary/${config.jssAppName}/{{lng}}?sc_apikey=${config.sitecoreApiKey}&sc_site=${config.sitecoreSiteName}`;
 
   options.backend = {
     loadPath: dictionaryServicePath,

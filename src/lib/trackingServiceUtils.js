@@ -1,13 +1,13 @@
 import { trackingApi } from '@sitecore-jss/sitecore-jss-tracking';
-import { createDataFetcher } from './dataFetcher';
+import { dataFetcher } from './dataFetcher';
 
-export function createTrackingApiClient(requestClient, config) {
+export function createTrackingApiClient(config) {
   const trackingApiOptions = {
     host: config.sitecoreApiHost,
     querystringParams: {
       sc_apikey: config.sitecoreApiKey,
     },
-    fetcher: createDataFetcher(requestClient),
+    fetcher: dataFetcher,
   };
 
   return {

@@ -71,28 +71,34 @@ export default {
         language: $jss.getCurrentLanguage(),
         nuxtContext: context,
       })
-      .then((result) => {
-        if (!store.state.app.routeData) {
+      .then(() => {
+        if (store.state.app.routeDataFetchStatus === 'error') {
           // If no route data was fetched, then:
 
           // Set a status code on the response. Note: `res` is only defined during SSR.
           // `actualStatusCode` can be added by the Nuxt server so that we can obtain
           // the status code returned by any proxy requests. Otherwise, Nuxt will
           // default to 200 status code.
-          if (res && res.actualStatusCode) {
-            res.statusCode = res.actualStatusCode;
+          const statusCode =
+            res &&
+            (res.actualStatusCode ||
+              store.state.app.routeDataFetchError?.response?.status ||
+              res.statusCode);
+
+          if (res) {
+            res.statusCode = statusCode;
           }
 
           const props = {
             // Pass a statusCode as prop for any interested components.
-            statusCode: res && res.statusCode,
+            statusCode,
             // Also be sure to pass the context data returned by Layout Service (if any).
             sitecoreContext: store.state.app.sitecoreContext,
           };
 
           // Call the `error` function provided by Nuxt context.
           error({
-            statusCode: res && res.statusCode,
+            statusCode,
             props,
           });
         }

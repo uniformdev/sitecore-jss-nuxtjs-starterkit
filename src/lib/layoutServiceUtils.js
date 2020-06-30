@@ -1,25 +1,25 @@
 import { dataApi } from '@sitecore-jss/sitecore-jss-vue';
-import { createDataFetcher } from './dataFetcher';
+import { dataFetcher } from './dataFetcher';
 
-export function createLayoutServiceClient(requestClient, config, { nuxtContext } = {}) {
+export function createLayoutServiceClient(config, { nuxtContext } = {}) {
   return {
-    getRouteData: (route, language) =>
-      getRouteData(route, language, requestClient, config, nuxtContext),
+    getRouteData: (route, language) => getRouteData(route, language, config, nuxtContext),
   };
 }
 
-function getRouteData(route, language, requestClient, config, nuxtContext) {
+function getRouteData(route, language, config, nuxtContext) {
   const fetchOptions = {
     // NOTE: we want to proxy client-side layout service requests through the Nuxt server so
-    // that cookies are properly maintained. Therefore, we leave the Layout Service
-    // config `host` value empty. The Nuxt server will then handle requests for `/sitecore/api/layout/...`
-    layoutServiceConfig: { host: '' },
+    // that cookies are properly maintained. Therefore, we set the Layout Service
+    // config `host` value to empty when in a client context.
+    // The Nuxt server or hosting platform (for static sites) will then handle requests for `/sitecore/api/layout/...`
+    layoutServiceConfig: { host: process.client ? '' : config.sitecoreApiHost },
     querystringParams: {
       sc_lang: language,
       sc_apikey: config.sitecoreApiKey,
-      sc_site: config.jssAppName,
+      sc_site: config.sitecoreSiteName,
     },
-    fetcher: createDataFetcher(requestClient),
+    fetcher: dataFetcher,
   };
 
   if (
@@ -32,8 +32,6 @@ function getRouteData(route, language, requestClient, config, nuxtContext) {
     // export mode
     // Fetch layout data from Layout Service, then write the data to disk.
     const { exportRouteDataWriter } = nuxtContext.app.getExportRouteDataContext();
-    fetchOptions.layoutServiceConfig.host = config.sitecoreApiHost;
-
     let apiData;
     return fetchFromApi(route, fetchOptions)
       .then((data) => {
@@ -89,13 +87,5 @@ function fetchFromApi(route, fetchOptions) {
   // that the item/route being requested has a leading slash.
   const formattedRoute = ensureLeadingSlash(route);
 
-  return dataApi.fetchRouteData(formattedRoute, fetchOptions).catch((error) => {
-    if (error.response && error.response.status === 404 && error.response.data) {
-      return error.response.data;
-    }
-
-    console.error(`Route data fetch error for route: ${route}`, error.message);
-
-    return null;
-  });
+  return dataApi.fetchRouteData(formattedRoute, fetchOptions);
 }

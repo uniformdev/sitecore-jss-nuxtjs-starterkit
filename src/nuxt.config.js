@@ -1,10 +1,11 @@
 require('./uniform.config').getUniformConfig();
 const { config: getUniformNuxtConfig } = require('@uniformdev/nuxt-server');
 const WebpackRequireFromPlugin = require('webpack-require-from');
-const { consoleLogger } = require('./utils/logging/consoleLogger');
-const { resolveServerUrls } = require('./server/util');
+const { consoleLogger } = require('./uniform/logging/consoleLogger');
+const serverConfig = require('./server/server.config');
 
 const uniformNuxtConfig = getUniformNuxtConfig(consoleLogger);
+
 const nuxtConfig = {
   ...uniformNuxtConfig,
   mode: 'universal',
@@ -75,6 +76,8 @@ const nuxtConfig = {
     ],
     // Customize the `hotMiddleware` configuration so that requests to the HMR endpoint
     // can succeed in both local development and in JSS rendering host.
+    // TODO: check https://github.com/nuxt/nuxt.js/pull/7318 to see if any changes need to be made
+    // to the below config.
     hotMiddleware: {
       // The `//` is intentional due to how Nuxt invokes the hotmiddleware. By default, Nuxt will
       // prepend the client path with `router.base`, which has a default value of `/`. Then the
@@ -119,8 +122,9 @@ const nuxtConfig = {
         if (!isStaticExport && resources.clientManifest) {
           // We need to construct a `publicPath` value that contains the current tunnel or server URL and Nuxt path.
           // Use the same URL resolver that is used by `server/index.js` when starting the Nuxt server.
-          const { server, tunnel } = resolveServerUrls();
-          const publicPath = `${tunnel.url || server.url}/_nuxt/`;
+          const serverUrl = serverConfig.resolveServerUrl();
+          const publicServerUrl = serverConfig.resolvePublicServerUrl();
+          const publicPath = `${publicServerUrl.url || serverUrl.url}/_nuxt/`;
           resources.clientManifest.publicPath = publicPath;
         }
       },

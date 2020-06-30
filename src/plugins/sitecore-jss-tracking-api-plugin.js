@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import { trackingApi } from '@sitecore-jss/sitecore-jss-tracking';
-import axios from 'axios';
-import { createDataFetcher } from '../lib/dataFetcher';
+
+import { dataFetcher } from '../lib/dataFetcher';
 import { getConfig } from '../temp/config';
 
 export default function(context) {
@@ -18,7 +18,7 @@ export default function(context) {
     VueInstance.prototype.$jss = {
       // there may be other JSS plugins installed, merge existing properties
       ...VueInstance.prototype.$jss,
-      trackingApi: createTrackingApiClient(axios, config),
+      trackingApi: createTrackingApiClient(config),
     };
   }
 
@@ -30,13 +30,13 @@ export default function(context) {
   Vue.use(plugin);
 }
 
-function createTrackingApiClient(requestClient, config) {
+function createTrackingApiClient(config) {
   const trackingApiOptions = {
     host: config.sitecoreApiHost,
     querystringParams: {
       sc_apikey: config.sitecoreApiKey,
     },
-    fetcher: createDataFetcher(requestClient),
+    fetcher: dataFetcher,
   };
 
   const abandonOptions = {

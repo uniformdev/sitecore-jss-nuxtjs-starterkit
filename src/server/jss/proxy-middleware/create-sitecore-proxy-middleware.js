@@ -7,7 +7,7 @@ const httpNative = require('http');
 const httpsNative = require('https');
 const followRedirects = require('follow-redirects');
 
-const { handleProxyResponse } = require('./handleProxyResponse');
+const { handleProxyResponse } = require('./handle-proxy-response');
 
 const upgradeHeader = /(^|,)\s*upgrade\s*($|,)/i;
 const isSSL = /^https|wss/;
@@ -64,9 +64,19 @@ function createSitecoreProxyMiddleware({
       ...createProxyOptions,
     };
 
+    // edge case:
+    // when the incoming request url is `/sitecore/api/layout/render`, we want to
+    // directly proxy it to Sitecore, but we also want the result of that request
+    // to be "modifiable" via `options.modifyLayoutServiceData`. What is the best
+    // way to handle that?
+    // Setting `proxyOptions.isLayoutServiceProxy` to true
+    // for those types of requests has unintended side-effects because it causes
+    // the Nuxt app to try to render in response to the layout service request. We
+    // don't want that, we just want the layout service response, but "modified"
+    // when desired.
     if (shouldDirectProxyResolver && shouldDirectProxyResolver(req)) {
       console.log('directly proxying request', req.url);
-      proxyOptions.target = new URL(`${jssConfig.sitecore.layoutServiceHost}${req.url}`);
+      proxyOptions.target = new URL(`${jssConfig.sitecoreApiHost}${req.url}`);
       proxyOptions.isLayoutServiceProxy = false;
     } else {
       // Attempt to resolve the route using the provided routeResolver.
@@ -89,8 +99,8 @@ function createSitecoreProxyMiddleware({
       const targetQueryStringParams = new URLSearchParams(incomingRequestUrl.searchParams);
       const sitecoreRoute = ensureLeadingSlash(resolvedRoute.params.sitecoreRoute);
       targetQueryStringParams.set('item', sitecoreRoute);
-      targetQueryStringParams.set('sc_apikey', jssConfig.sitecore.apiKey);
-      targetQueryStringParams.set('sc_site', jssConfig.jssAppName);
+      targetQueryStringParams.set('sc_apikey', jssConfig.sitecoreApiKey);
+      targetQueryStringParams.set('sc_site', jssConfig.sitecoreSiteName);
       if (resolvedRoute.params.language) {
         targetQueryStringParams.set('sc_lang', resolvedRoute.params.language);
       }
@@ -98,7 +108,7 @@ function createSitecoreProxyMiddleware({
       // assemble the proxy target URL
       proxyOptions.target = new URL(
         `${
-          jssConfig.sitecore.layoutServiceHost
+          jssConfig.sitecoreApiHost
         }/sitecore/api/layout/render/jss?${targetQueryStringParams.toString()}`
       );
       proxyOptions.isLayoutServiceProxy = true;
