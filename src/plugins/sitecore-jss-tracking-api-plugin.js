@@ -4,7 +4,7 @@ import { trackingApi } from '@sitecore-jss/sitecore-jss-tracking';
 import { dataFetcher } from '../lib/dataFetcher';
 import { getConfig } from '../temp/config';
 
-export default function(context) {
+export default (context) => {
   const config = getConfig();
 
   // Vue plugins must export a function named 'install'
@@ -28,7 +28,7 @@ export default function(context) {
   // want all JSS-related plugins to be accessible via the `$jss` property, so we
   // need to use the Vue-provided `Vue.use()` syntax to install JSS plugins.
   Vue.use(plugin);
-}
+};
 
 function createTrackingApiClient(config) {
   const trackingApiOptions = {

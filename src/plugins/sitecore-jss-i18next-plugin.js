@@ -3,7 +3,7 @@ import i18n from 'i18next';
 import axiosBackend from './i18next-axios-backend';
 import { getConfig } from '../temp/config';
 
-export default function(context) {
+export default (context) => {
   const { req, params, store } = context;
 
   const config = getConfig();
@@ -47,7 +47,7 @@ export default function(context) {
 
       Vue.use(plugin);
     });
-}
+};
 
 function install(VueInstance, context) {
   // "standard" convention for Vue plugins to ensure they are only installed once.
