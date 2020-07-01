@@ -64,20 +64,25 @@ function createSitecoreProxyMiddleware({
       ...createProxyOptions,
     };
 
-    // edge case:
-    // when the incoming request url is `/sitecore/api/layout/render`, we want to
-    // directly proxy it to Sitecore, but we also want the result of that request
-    // to be "modifiable" via `options.modifyLayoutServiceData`. What is the best
-    // way to handle that?
-    // Setting `proxyOptions.isLayoutServiceProxy` to true
-    // for those types of requests has unintended side-effects because it causes
-    // the Nuxt app to try to render in response to the layout service request. We
-    // don't want that, we just want the layout service response, but "modified"
-    // when desired.
     if (shouldDirectProxyResolver && shouldDirectProxyResolver(req)) {
-      console.log('directly proxying request', req.url);
+      console.log('Directly proxying request', req.url);
       proxyOptions.target = new URL(`${jssConfig.sitecoreApiHost}${req.url}`);
-      proxyOptions.isLayoutServiceProxy = false;
+
+      // When the incoming request contains the layout service endpoint URL, we
+      // want to identify it as a layout service request so that the layout service
+      // response data can be modified by a custom `modifyLayoutServiceData` (if provided).
+      // For those types of layout service requests, we want to send the (possibly modified)
+      // layout service data and end the response.
+      // However, we're also making layout service proxy requests during SSR by converting
+      // an incoming "page request", i.e. `/about` into a layout service request so that
+      // the layout service data is available for app rendering. For those types of layout
+      // service requests, we want to make the (possibly modified) layout service data
+      // available to subsequent middleware or consumers and _not_ end the response.
+      // So we set `isChainable=false` when we want the response to immediately be sent
+      // and set `isChainable=true` when we want to be able to use the layout service data
+      // later in the response.
+      proxyOptions.isLayoutServiceProxy = req.url.startsWith('/sitecore/api/layout');
+      proxyOptions.isChainable = false;
     } else {
       // Attempt to resolve the route using the provided routeResolver.
       const resolvedRoute = layoutServiceRouteResolver(req);
@@ -86,7 +91,9 @@ function createSitecoreProxyMiddleware({
         return;
       }
 
-      console.log('request will be proxied to Layout Service', req.url);
+      console.log(
+        `Request for route '${req.url}' will be converted and proxied to Layout Service request.`
+      );
 
       // Parse the incoming request url so we can easily extract querystring parameters.
       const incomingRequestUrl = new URL(
@@ -112,6 +119,7 @@ function createSitecoreProxyMiddleware({
         }/sitecore/api/layout/render/jss?${targetQueryStringParams.toString()}`
       );
       proxyOptions.isLayoutServiceProxy = true;
+      proxyOptions.isChainable = true;
     }
 
     try {
@@ -121,7 +129,7 @@ function createSitecoreProxyMiddleware({
       // Responses for requests that are directly proxied to Sitecore will be piped directly
       // to the outgoing response, so trying to invoke more middleware for those requests/responses
       // will likely error because the response headers will have been sent and the response ended.
-      if (proxyOptions.isLayoutServiceProxy) {
+      if (proxyOptions.isChainable) {
         next();
       }
     } catch (err) {
@@ -143,7 +151,7 @@ async function invokeProxy(req, res, options) {
     ? { http: httpNative, https: httpsNative }
     : followRedirects;
 
-  console.log('sending proxy request', proxyReqOptions.host, proxyReqOptions.path);
+  console.log('Sending proxy request', proxyReqOptions.host, proxyReqOptions.path);
 
   const proxyReq = (isSSL.test(options.target.protocol) ? agents.https : agents.http).request(
     proxyReqOptions

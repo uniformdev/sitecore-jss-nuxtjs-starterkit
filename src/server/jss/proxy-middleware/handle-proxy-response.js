@@ -35,13 +35,30 @@ module.exports = {
           );
         }
 
-        // Attach the parsed JSS/Layout Service data as an arbitrary property on the `req` object
-        incomingRequest.jssData = {
-          route: layoutServiceData,
-        };
-        // remove the content-encoding header from the outgoing response as the app renderer
-        // will be returning html.
-        outgoingServerResponse.removeHeader('content-encoding');
+        if (options.isChainable) {
+          // Attach the parsed JSS/Layout Service data as an arbitrary property on the `req` object.
+          // This allows downstream middleware or consumers with access to the request object to
+          // do something with the layout service data.
+          incomingRequest.jssData = {
+            route: layoutServiceData,
+          };
+          // Remove the content-encoding header from the outgoing response as it is expected
+          // that downstream code will be futher modifying the outgoing response. For example,
+          // a JSS app will render with the provided layout service data and return html to the response.
+          outgoingServerResponse.removeHeader('content-encoding');
+        } else {
+          // If we're not in a "chainable" context, then we want to write the modified layout service
+          // data to the outgoing response and then directly end the response. This is similar
+          // to directly piping the proxy response, but allows devs to modify the layout service data
+          // before providing it to the requester.
+
+          // Remove the content-encoding header from the outgoing response as we've decompressed
+          // the incoming JSON for modification. The outgoing response can still be compressed
+          // by any `compression` middleware used by the server.
+          outgoingServerResponse.removeHeader('content-encoding');
+          outgoingServerResponse.write(JSON.stringify(layoutServiceData));
+          outgoingServerResponse.end();
+        }
       } else if (
         options.handleProxyRedirect &&
         (proxyResponse.statusCode === 301 || proxyResponse.statusCode === 302)

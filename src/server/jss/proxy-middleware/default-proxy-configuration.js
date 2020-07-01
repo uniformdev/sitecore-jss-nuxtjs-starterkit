@@ -100,6 +100,8 @@ function getModifyLayoutServiceData() {
   // service request.
   // The `layoutServiceData` argument should be modified in place, no return value is expected
   // from this method.
+  // IMPORTANT: Be mindful of what you do in this method. Modifying a large JSON object could
+  // be expensive in terms of performance.
   // return (
   //   layoutServiceData,
   //   incomingRequest,
