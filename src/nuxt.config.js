@@ -48,7 +48,10 @@ const nuxtConfig = {
   /*
    ** Nuxt.js modules
    */
-  modules: ['@nuxtjs/pwa'],
+  modules: [
+    '@nuxtjs/pwa',
+    ['~/modules/disconnected-export-module', { jssMode: process.env.JSS_MODE }],
+  ],
   /*
    ** Build configuration
    */

@@ -168,7 +168,9 @@ function transformScJssConfig() {
 }
 
 function transformPackageConfig() {
-  if (!packageConfig.config) return {};
+  if (!packageConfig.config) {
+    return {};
+  }
 
   return {
     jssAppName: packageConfig.config.appName,
@@ -177,6 +179,7 @@ function transformPackageConfig() {
     sitecoreSiteName: packageConfig.config.sitecoreSiteName || packageConfig.config.appName,
     defaultLanguage: packageConfig.config.language || 'en',
     graphQLEndpointPath: packageConfig.config.graphQLEndpointPath || null,
+    appLanguages: packageConfig.config.appLanguages || [packageConfig.config.language || 'en'],
   };
 }
 

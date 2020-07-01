@@ -9,7 +9,10 @@
     ],
     "sitecoreConfigPath": "/App_Config/Include/zzz",
     "graphQLEndpointPath": "/api/uniform-jss",
-    "language": "en"
+    "language": "en",
+    "appLanguages": [
+      "en"
+    ]
   },
   "scripts": {
     "bootstrap:connected": "node scripts/bootstrap.js",
@@ -17,7 +20,8 @@
     "bootstrap:disconnected": "node scripts/bootstrap.js --disconnected",
     "bootstrap:disconnected:export": "node scripts/bootstrap.js --disconnected --export",
     "deploy": "npm run bootstrap:connected && npm run nuxt:generate && node deploy.js",
-    "export": "npm-run-all --serial bootstrap:connected nuxt:generate",
+    "export": "cross-env-shell JSS_MODE=connected \"npm-run-all --serial bootstrap:connected:export nuxt:generate\"",
+    "export:disconnected": "cross-env-shell JSS_MODE=disconnected \"npm-run-all --serial bootstrap:disconnected:export nuxt:generate\"",
     "generate-manifest": "jss manifest -c -d",
     "lint": "eslint --ext .js,.vue --ignore-path .gitignore .",
     "start": "cross-env-shell JSS_MODE=connected \"npm-run-all --serial bootstrap:connected --parallel start-server:dev watch-components\"",
