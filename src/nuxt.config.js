@@ -116,6 +116,8 @@ const nuxtConfig = {
       // `publicPath` value that is used by the renderer. Unfortunately, this is pretty much
       // the only time we're allowed to modify it at runtime.
       resourcesLoaded(resources) {
+        // NOTE: `process.static` is not available at this point to determine if we're in a static export context,
+        // so we need to use a custom env variable that we set.
         const isStaticExport = process.env.NUXT_EXPORT && process.env.NUXT_EXPORT === 'true';
         // For static export, don't modify the `publicPath`, URLs should be relative because
         // we don't know the URL of the server that the static site will be exported to.
