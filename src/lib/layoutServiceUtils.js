@@ -21,12 +21,11 @@ function getRouteData(route, language, config, nuxtContext) {
     fetcher: nuxtContext.$jss.dataFetcher,
   };
 
+  // NOTE: using `!process.client` will help ensure dead code elimination during minification for the client bundle.
   if (
-    process.env.NUXT_EXPORT &&
-    process.env.NUXT_EXPORT === 'true' &&
-    nuxtContext &&
-    nuxtContext.app &&
-    nuxtContext.app.getExportRouteDataContext
+    !process.client &&
+    nuxtContext?.app?.context?.isStatic &&
+    nuxtContext?.app?.getExportRouteDataContext
   ) {
     // export mode
     // Fetch layout data from Layout Service, then write the data to disk.

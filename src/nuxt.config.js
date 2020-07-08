@@ -103,6 +103,9 @@ const nuxtConfig = {
   generate: {
     dir: 'out',
   },
+  server: {
+    port: serverConfig.resolveListeningPort(),
+  },
 };
 
 module.exports = nuxtConfig;

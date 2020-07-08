@@ -11,7 +11,7 @@
 export default {
   name: 'LanguageSwitcher',
   created() {
-    this.languages = ['en', 'da-DK'];
+    this.languages = this.$jss.getRuntimeConfig().appLanguages;
   },
   methods: {
     changeAppLanguage(e) {

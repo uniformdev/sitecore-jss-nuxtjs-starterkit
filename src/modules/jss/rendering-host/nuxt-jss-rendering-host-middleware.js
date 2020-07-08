@@ -30,7 +30,7 @@ function getJssRenderingHostMiddleware({ app, jssConfig } = {}) {
       // to the `sitecoreApiHost` value specified in `temp/config.js`. And that value could be,
       // for example, `localhost:3000` if running the app in disconnected mode. That could result in
       // CORS errors and unexpected data. So, we provide the remote/"connected" mode config values so the app can
-      // use those when necessary.
+      // use those if/when necessary.
       if (jssConfig) {
         req.jssConfig = jssConfig;
       }
@@ -41,6 +41,10 @@ function getJssRenderingHostMiddleware({ app, jssConfig } = {}) {
 
       // render app and return
       // renderResult is an object: { html, error, redirected }
+      // The object passed as the second argument to `renderRoute` will be added to the
+      // Nuxt SSR `renderContext` object. The `req` and `res` properties are required, but
+      // you can also add custom properties, e.g. `isJssRenderingHostRequest`, that will
+      // be available anywhere you have access to the SSR `renderContext` object.
       const renderResult = await app.renderRoute(routeInfo.pathname, {
         req,
         res,

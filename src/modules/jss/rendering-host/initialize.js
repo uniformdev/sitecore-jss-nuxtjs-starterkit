@@ -135,6 +135,15 @@ function configureHooks(nuxtApp, nuxtConfig, resolveRenderingHostPublicUrl) {
       return;
     }
 
+    // If there is a `jssConfig` attached to the `req` object, assign it to the `renderContext.nuxt` object.
+    // This makes the `jssConfig` available as a property on the SSR state object that is serialized to
+    // the HTML document via `__NUXT__`.
+    // This behavior useful for ensuring the rendering host JSS config is available to client code and we can
+    // use the rendering host JSS config to override the runtime config values when necessary.
+    if (renderContext.req.jssConfig) {
+      renderContext.nuxt.jssConfig = renderContext.req.jssConfig;
+    }
+
     const publicPath = resolveRenderingHostPublicUrl();
 
     // Prepend rendering host public path to <script /> `src` values.

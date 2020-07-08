@@ -46,9 +46,8 @@ function generateRuntimeConfig(configOverrides) {
 ${moduleFormat.exportStatement} function getConfig() {
   const config = ${JSON.stringify(config, null, 2)};
 
-  if (typeof window !== 'undefined' && typeof window.__NUXT__ !== 'undefined') {
-    const nuxtData = window.__NUXT__;
-    Object.assign(config, nuxtData.data.jssConfig);
+  if (typeof window !== 'undefined' && typeof window.__NUXT__ !== 'undefined' && typeof window.__NUXT__.jssConfig !== 'undefined') {
+    Object.assign(config, window.__NUXT__.jssConfig);
   }
 
   return config;

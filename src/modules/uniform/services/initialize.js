@@ -84,7 +84,7 @@ function resolveUniformServerConfig(nuxtApp) {
   } else {
     // Otherwise, use `parseUniformServerConfig` method from Uniform library to
     // resolve config from environment variables.
-    uniformServerConfig = parseUniformServerConfig(process.env);
+    uniformServerConfig = parseUniformServerConfig(process.env, consoleLogger, false);
   }
 
   return uniformServerConfig;

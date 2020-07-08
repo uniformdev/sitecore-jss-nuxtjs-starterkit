@@ -13,7 +13,7 @@ function resolveListeningPort() {
 }
 
 function resolveServerUrl() {
-  const serverPort = process.env.SERVER_PORT || 3000;
+  const serverPort = process.env.SERVER_PORT || process.env.PORT || 3000;
   const serverHostname = process.env.SERVER_HOST_NAME || 'localhost';
   const serverProtocol = process.env.SERVER_PROTOCOL || 'http';
 

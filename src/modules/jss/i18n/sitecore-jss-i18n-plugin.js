@@ -63,7 +63,18 @@ async function resolveStateValue(nuxtContext) {
   // `req` is only defined for SSR.
   // If in SSR or static export, we need to initialize i18n using the route language parameter,
   // using the default language as fallback.
-  if (req || process.env.NUXT_EXPORT === 'true') {
+  if (req || nuxtContext?.app?.context?.isStatic) {
+    // If the request has `jssData.viewBag` properties for language and dictionary, then
+    // use the values to populate the state. This is primarily for JSS Rendering Host support.
+    // NOTE: `req` is undefined during export/generate, so be sure to null-check it.
+    if (req?.jssData?.viewBag?.language && req?.jssData?.viewBag?.dictionary) {
+      return Promise.resolve({
+        language: req.jssData.viewBag.language,
+        dictionary: req.jssData.viewBag.dictionary,
+      });
+    }
+
+    // Else assume we need to resolve the language and fetch dictionary data.
     const resolvedLanguage = params.lang || jssConfig.defaultLanguage;
     return fetchDictionaryData(resolvedLanguage, nuxtContext).then((dictionary) => {
       return {

@@ -16,7 +16,7 @@ startTunnel(serverUrl.parts.hostname, {
     process.env.SERVER_PUBLIC_PROTOCOL = parsedTunnelUrl.protocol.replace(':', '');
 
     // start the Express server
-    require('./server');
+    require('./server').start({ tunnelUrl });
   })
   .catch((err) => {
     console.error(err);

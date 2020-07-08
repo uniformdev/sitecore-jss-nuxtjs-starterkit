@@ -8,12 +8,12 @@ const { getUniformConfig } = require('../uniform.config');
   BOOTSTRAPPING
   The bootstrap process runs before build, and generates JS that needs to be
   included into the build - specifically, the component name to component mapping,
-  and the global config module.
+  and the global config module(s).
 */
 
 // Resolve execution modes
-const disconnected = process.argv.some((arg) => arg === '--disconnected');
-const isExport = process.argv.some((arg) => arg === '--export');
+const disconnected = process.env.JSS_MODE === 'disconnected';
+const isExport = process.env.NUXT_EXPORT === 'true';
 
 /*
   CONFIG GENERATION
@@ -35,20 +35,21 @@ generateSitecoreProxyConfig();
 require('./generate-component-factory');
 
 function getRuntimeConfigOverrides() {
-  const uniformConfig = getUniformConfig();
-  const port = process.env.PORT || 3000;
-
   const configOverride = {};
+
+  const uniformConfig = getUniformConfig();
+
   if (disconnected) {
+    const port = process.env.PORT || 3000;
     configOverride.sitecoreApiHost = `http://localhost:${port}`;
   }
 
-  const siteName = uniformConfig.UNIFORM_API_SITENAME;
-  if (siteName) {
-    configOverride.sitecoreSiteName = siteName;
-  }
-
   if (isExport) {
+    const siteName = uniformConfig.UNIFORM_API_SITENAME;
+    if (siteName) {
+      configOverride.sitecoreSiteName = siteName;
+    }
+
     const apiKey = process.env.UNIFORM_API_KEY;
     if (apiKey) {
       configOverride.apiKey = apiKey;
