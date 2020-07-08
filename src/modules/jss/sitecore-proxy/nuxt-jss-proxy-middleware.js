@@ -1,6 +1,5 @@
 const Router = require('vue-router');
 const nodePath = require('path');
-const nuxtConfig = require('../../../nuxt.config.js');
 
 const { createSitecoreProxyMiddleware } = require('./create-sitecore-proxy-middleware');
 const { getProxyConfiguration } = require('./default-proxy-configuration');
@@ -9,7 +8,7 @@ module.exports = {
   getProxyMiddleware,
 };
 
-function getProxyMiddleware({ jssConfig, isDevEnv }) {
+function getProxyMiddleware({ jssConfig, isDevEnv, nuxtConfig }) {
   // Obtain a list of the configured Sitecore routes for the app.
   // These route patterns are currently defined in nuxt.config.js via the `router.extendRoutes` property.
   const routes = [];
@@ -42,7 +41,7 @@ function getProxyMiddleware({ jssConfig, isDevEnv }) {
     jssConfig,
     isDevEnv,
     layoutServiceRouteResolver,
-    doNotProxyPrefixesList: ['/_nuxt', '/__webpack_hmr'],
+    doNotProxyPrefixesList: ['/_nuxt', '/__webpack_hmr', '/_loading/sse'],
   });
 
   const proxyMiddleware = createSitecoreProxyMiddleware(proxyConfig);

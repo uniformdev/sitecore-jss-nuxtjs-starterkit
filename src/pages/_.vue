@@ -57,10 +57,10 @@ export default {
       console.log('loading canceled');
     },
   },
-  // We use `fetch` instead of `asyncData` to retrieve layout service data.
-  // `fetch` allows us to fill the Vuex store before rendering, but doesn't set
+  // We use `middleware` instead of `asyncData` or `fetch` to retrieve layout service data.
+  // `middleware` allows us to fill the Vuex store before rendering, but doesn't set
   // the component data/state (which is what `asyncData` does).
-  fetch(context) {
+  middleware(context) {
     const { store, params, res, error, $jss } = context;
 
     const resolvedRoute = params.sitecoreRoute || '/';

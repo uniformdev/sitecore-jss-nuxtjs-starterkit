@@ -4,8 +4,6 @@ import { getConfig } from '../../temp/config';
 export const state = () => ({
   sitecoreContext: {},
   routeData: null,
-  language: '',
-  dictionary: null,
   currentRoute: '',
   routeDataFetchStatus: '',
   routeDataFetchError: null,
@@ -26,10 +24,6 @@ export const mutations = {
       routeName: routeData && routeData.name,
       itemId: routeData && routeData.itemId,
     };
-  },
-  seti18n(state, { language, dictionary }) {
-    state.language = language;
-    state.dictionary = dictionary;
   },
   setCurrentRoute(state, { route }) {
     state.currentRoute = route;

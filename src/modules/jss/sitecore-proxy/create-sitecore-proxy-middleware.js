@@ -42,13 +42,13 @@ function createSitecoreProxyMiddleware({
     const proxyOptions = {
       // timeout (in milliseconds) for outgoing proxy requests
       proxyTimeout: 60000,
-      // add any SSL/TLS-specific request options, includes everything from http.request() as well
+      // add any SSL/TLS-specific request options, includes everything = require(http.request() as well
       // as tls.connect().
       // https://nodejs.org/docs/latest-v13.x/api/https.html#https_https_request_url_options_callback
       // sslRequestOptions: {},
 
       // When making POST requests, we disable follow redirects (for now) so that cookies
-      // from the _first_ response are preserved. We may need to revisit this and use
+      // = require(the _first_ response are preserved. We may need to revisit this and use
       // a separate library for making requests - a library that will merge/preserve cookies
       // as it follows redirects.
       disableFollowRedirects: req.method === 'POST',
@@ -159,14 +159,14 @@ async function invokeProxy(req, res, options) {
 
   // allow outgoing request to timeout
   if (options.proxyTimeout) {
-    proxyReq.setTimeout(options.proxyTimeout, function() {
+    proxyReq.setTimeout(options.proxyTimeout, function () {
       proxyReq.abort();
     });
   }
 
   return new Promise((resolve, reject) => {
     // Ensure we abort proxy if request is aborted
-    req.on('aborted', function() {
+    req.on('aborted', function () {
       proxyReq.abort();
       reject(new Error(`Incoming request aborted: ${req.url}`));
     });
@@ -192,7 +192,7 @@ async function invokeProxy(req, res, options) {
     // note: pipe does not copy headers
     req.pipe(proxyReq);
 
-    proxyReq.on('response', function(proxyRes) {
+    proxyReq.on('response', function (proxyRes) {
       if (!res.headersSent) {
         resolve(handleProxyResponse(req, res, proxyRes, options));
         return;
@@ -226,7 +226,7 @@ function createOutgoingRequestOptions(options, req) {
       proto: isEncryptedRequest(req) ? 'https' : 'http',
     };
 
-    ['for', 'proto'].forEach(function(header) {
+    ['for', 'proto'].forEach(function (header) {
       outgoingOptions.headers['x-forwarded-' + header] =
         (outgoingOptions.headers['x-forwarded-' + header] || '') +
         (outgoingOptions.headers['x-forwarded-' + header] ? ',' : '') +

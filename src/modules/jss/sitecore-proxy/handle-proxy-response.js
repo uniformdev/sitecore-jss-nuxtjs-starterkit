@@ -7,82 +7,82 @@ const zlib = require('zlib');
 
 const redirectRegex = /^201|30(1|2|7|8)$/;
 
-module.exports = {
-  async handleProxyResponse(incomingRequest, outgoingServerResponse, proxyResponse, options) {
-    try {
-      removeChunked(incomingRequest, proxyResponse);
-      setConnection(incomingRequest, proxyResponse);
-      setRedirectHostRewrite(incomingRequest, proxyResponse, options);
-      // NOTE: the `copyHeaders` method copies all headers from proxyResponse to outgoingServerResponse
-      copyHeaders(outgoingServerResponse, proxyResponse, options);
-      writeStatusCode(outgoingServerResponse, proxyResponse);
+module.exports = { handleProxyResponse };
 
-      outgoingServerResponse.removeHeader('server');
-      outgoingServerResponse.removeHeader('x-powered-by');
+async function handleProxyResponse(
+  incomingRequest,
+  outgoingServerResponse,
+  proxyResponse,
+  options
+) {
+  try {
+    removeChunked(incomingRequest, proxyResponse);
+    setConnection(incomingRequest, proxyResponse);
+    setRedirectHostRewrite(incomingRequest, proxyResponse, options);
+    // NOTE: the `copyHeaders` method copies all headers from proxyResponse to outgoingServerResponse
+    copyHeaders(outgoingServerResponse, proxyResponse, options);
+    writeStatusCode(outgoingServerResponse, proxyResponse);
 
-      if (options.isLayoutServiceProxy) {
-        const responseData = await streamToBuffer(proxyResponse);
-        const contentEncoding = proxyResponse.headers['content-encoding'];
-        const layoutServiceData = await extractJsonFromResponseData(responseData, contentEncoding);
+    outgoingServerResponse.removeHeader('server');
+    outgoingServerResponse.removeHeader('x-powered-by');
 
-        if (options.modifyLayoutServiceData) {
-          options.modifyLayoutServiceData(
-            layoutServiceData,
-            incomingRequest,
-            outgoingServerResponse,
-            proxyResponse,
-            options
-          );
-        }
+    if (options.isLayoutServiceProxy) {
+      const responseData = await streamToBuffer(proxyResponse);
+      const contentEncoding = proxyResponse.headers['content-encoding'];
+      const layoutServiceData = await extractJsonFromResponseData(responseData, contentEncoding);
 
-        if (options.isChainable) {
-          // Attach the parsed JSS/Layout Service data as an arbitrary property on the `req` object.
-          // This allows downstream middleware or consumers with access to the request object to
-          // do something with the layout service data.
-          incomingRequest.jssData = {
-            route: layoutServiceData,
-          };
-          // Remove the content-encoding header from the outgoing response as it is expected
-          // that downstream code will be futher modifying the outgoing response. For example,
-          // a JSS app will render with the provided layout service data and return html to the response.
-          outgoingServerResponse.removeHeader('content-encoding');
-        } else {
-          // If we're not in a "chainable" context, then we want to write the modified layout service
-          // data to the outgoing response and then directly end the response. This is similar
-          // to directly piping the proxy response, but allows devs to modify the layout service data
-          // before providing it to the requester.
-
-          // Remove the content-encoding header from the outgoing response as we've decompressed
-          // the incoming JSON for modification. The outgoing response can still be compressed
-          // by any `compression` middleware used by the server.
-          outgoingServerResponse.removeHeader('content-encoding');
-          outgoingServerResponse.write(JSON.stringify(layoutServiceData));
-          outgoingServerResponse.end();
-        }
-      } else if (
-        options.handleProxyRedirect &&
-        (proxyResponse.statusCode === 301 || proxyResponse.statusCode === 302)
-      ) {
-        // NOTE: it is expected that the `handleProxyRedirect` handler will pipe or end the response.
-        options.handleProxyRedirect(
+      if (options.modifyLayoutServiceData) {
+        options.modifyLayoutServiceData(
+          layoutServiceData,
           incomingRequest,
           outgoingServerResponse,
           proxyResponse,
           options
         );
-      } else {
-        // Note: `proxyResponse.pipe` does _not_ pipe headers from `proxyResponse` to `outgoingServerResponse`, it only pipes the response body.
-        // So the header changes made above to `outgoingServerResponse` will not be overwritten.
-        proxyResponse.pipe(outgoingServerResponse);
-        // Note: you do not need to call outgoingServerResponse.end() here.
       }
-    } catch (error) {
-      console.error(error);
-      outgoingServerResponse.statusCode = 500;
-      outgoingServerResponse.content = error;
+
+      if (options.isChainable) {
+        // Attach the parsed JSS/Layout Service data as an arbitrary property on the `req` object.
+        // This allows downstream middleware or consumers with access to the request object to
+        // do something with the layout service data.
+        incomingRequest.jssData = {
+          route: layoutServiceData,
+        };
+        // Remove the content-encoding header from the outgoing response as it is expected
+        // that downstream code will be futher modifying the outgoing response. For example,
+        // a JSS app will render with the provided layout service data and return html to the response.
+        outgoingServerResponse.removeHeader('content-encoding');
+      } else {
+        // If we're not in a "chainable" context, then we want to write the modified layout service
+        // data to the outgoing response and then directly end the response. This is similar
+        // to directly piping the proxy response, but allows devs to modify the layout service data
+        // before providing it to the requester.
+
+        // Remove the content-encoding header from the outgoing response as we've decompressed
+        // the incoming JSON for modification. The outgoing response can still be compressed
+        // by any `compression` middleware used by the server.
+        outgoingServerResponse.removeHeader('content-encoding');
+        outgoingServerResponse.write(JSON.stringify(layoutServiceData));
+        outgoingServerResponse.end();
+      }
+    } else if (
+      options.handleProxyRedirect &&
+      (proxyResponse.statusCode === 301 || proxyResponse.statusCode === 302)
+    ) {
+      // NOTE: it is expected that the `handleProxyRedirect` handler will pipe or end the response.
+      options.handleProxyRedirect(incomingRequest, outgoingServerResponse, proxyResponse, options);
+    } else {
+      // Note: `proxyResponse.pipe` does _not_ pipe headers from `proxyResponse` to `outgoingServerResponse`, it only pipes the response body.
+      // So the header changes made above to `outgoingServerResponse` will not be overwritten.
+      proxyResponse.pipe(outgoingServerResponse);
+      // Note: you do not need to call outgoingServerResponse.end() here.
     }
-  },
-};
+  } catch (error) {
+    console.error(error);
+    outgoingServerResponse.statusCode = 500;
+    outgoingServerResponse.content = error;
+  }
+}
 
 /**
  * If is a HTTP 1.0 request, remove chunk headers
@@ -156,7 +156,7 @@ function copyHeaders(res, proxyRes, options) {
   const preserveHeaderKeyCase = options.preserveHeaderKeyCase;
   let rawHeaderKeyMap;
 
-  const copyHeader = function(headerKey, headerValue) {
+  const copyHeader = function (headerKey, headerValue) {
     if (headerValue === undefined) {
       return;
     }
@@ -182,7 +182,7 @@ function copyHeaders(res, proxyRes, options) {
     }
   }
 
-  Object.keys(proxyRes.headers).forEach(function(headerKey) {
+  Object.keys(proxyRes.headers).forEach(function (headerKey) {
     const headerValue = proxyRes.headers[headerKey];
     let resolvedHeaderKey = headerKey;
     if (preserveHeaderKeyCase && rawHeaderKeyMap) {

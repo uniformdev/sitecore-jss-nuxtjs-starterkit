@@ -1,24 +1,31 @@
 import Vue from 'vue';
 import { trackingApi } from '@sitecore-jss/sitecore-jss-tracking';
 
-import { dataFetcher } from '../lib/dataFetcher';
-import { getConfig } from '../temp/config';
+export default function initialize(nuxtContext) {
+  if (!nuxtContext.$jss || !nuxtContext.$jss.dataFetcher) {
+    throw new Error(
+      'Unable to initialize the JSS Tracking API plugin. No `dataFetcher` instance was available. Ensure that a JSS `dataFetcher` module or plugin has been installed and initialized.'
+    );
+  }
+  if (!nuxtContext.$jss || !nuxtContext.$jss.getRuntimeConfig) {
+    throw new Error(
+      'Unable to initialize the JSS Tracking API plugin. No `getRuntimeConfig` method was available. Ensure that a JSS `getRuntimeConfig` plugin has been installed and initialized.'
+    );
+  }
 
-export default (context) => {
-  const config = getConfig();
+  const jssConfig = nuxtContext.$jss.getRuntimeConfig();
 
   // Vue plugins must export a function named 'install'
   function install(VueInstance) {
-    // "standard" convention for Vue plugins to ensure they are only installed once.
-    if (install.installed) {
+    if (nuxtContext.$jss && nuxtContext.$jss.trackingApi) {
+      console.log('JSS Tracking API plugin already installed.', nuxtContext.$jss.trackingApi);
       return;
     }
-    install.installed = true;
 
     VueInstance.prototype.$jss = {
       // there may be other JSS plugins installed, merge existing properties
       ...VueInstance.prototype.$jss,
-      trackingApi: createTrackingApiClient(config),
+      trackingApi: createTrackingApiClient(jssConfig, nuxtContext.$jss.dataFetcher),
     };
   }
 
@@ -28,13 +35,14 @@ export default (context) => {
   // want all JSS-related plugins to be accessible via the `$jss` property, so we
   // need to use the Vue-provided `Vue.use()` syntax to install JSS plugins.
   Vue.use(plugin);
-};
+}
 
-function createTrackingApiClient(config) {
+function createTrackingApiClient(jssConfig, dataFetcher) {
   const trackingApiOptions = {
-    host: config.sitecoreApiHost,
+    host: jssConfig.sitecoreApiHost,
     querystringParams: {
-      sc_apikey: config.sitecoreApiKey,
+      sc_apikey: jssConfig.sitecoreApiKey,
+      sc_site: jssConfig.sitecoreSiteName,
     },
     fetcher: dataFetcher,
   };

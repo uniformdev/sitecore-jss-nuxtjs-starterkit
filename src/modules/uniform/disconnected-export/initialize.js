@@ -1,12 +1,16 @@
 const nodePath = require('path');
 const { ManifestManager } = require('@sitecore-jss/sitecore-jss-dev-tools');
-const jssConfig = require('../temp/config.cjs')();
+const { getConfig } = require('../../../temp/config');
 
-export default function DisconnectedExportModule(moduleOptions) {
+module.exports = initialize;
+
+function initialize(moduleOptions) {
   // we only want to run this module in disconnected mode
   if (moduleOptions.jssMode !== 'disconnected') {
     return;
   }
+
+  const jssConfig = getConfig();
 
   this.options.generate.routes = async () => {
     try {

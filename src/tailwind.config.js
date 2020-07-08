@@ -5,22 +5,20 @@
  ** Default: https://github.com/tailwindcss/tailwindcss/blob/master/stubs/defaultConfig.stub.js
  */
 module.exports = {
-  theme: {
-    extend: {
-      colors: {
-        blue: {
-          500: '#1D3557',
-        },
-        red: {
-          500: '#e63946',
-        },
-        teal: {
-          200: '#a8dadc',
-          500: '#a8dadc',
-        },
-      },
-    },
-  },
+  theme: {},
   variants: {},
   plugins: [],
+  purge: {
+    // Learn more on https://tailwindcss.com/docs/controlling-file-size/#removing-unused-css
+    // IMPORTANT: the following settings are _necessary_ in order for Nuxt to not bundle
+    // all CSS.
+    enabled: process.env.NODE_ENV === 'production',
+    content: [
+      'components/**/*.vue',
+      'layouts/**/*.vue',
+      'pages/**/*.vue',
+      'plugins/**/*.js',
+      'nuxt.config.js',
+    ],
+  },
 };

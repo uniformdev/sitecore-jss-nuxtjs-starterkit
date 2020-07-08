@@ -1,5 +1,4 @@
 import { dataApi } from '@sitecore-jss/sitecore-jss-vue';
-import { dataFetcher } from './dataFetcher';
 
 export function createLayoutServiceClient(config, { nuxtContext } = {}) {
   return {
@@ -19,7 +18,7 @@ function getRouteData(route, language, config, nuxtContext) {
       sc_apikey: config.sitecoreApiKey,
       sc_site: config.sitecoreSiteName,
     },
-    fetcher: dataFetcher,
+    fetcher: nuxtContext.$jss.dataFetcher,
   };
 
   if (
