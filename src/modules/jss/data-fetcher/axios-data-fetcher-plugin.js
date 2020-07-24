@@ -14,7 +14,6 @@ export default function initialize(context) {
  * @param {any} data Optional data to POST with the request.
  */
 function dataFetcher(url, data, options) {
-  console.log('fetching data', url);
   return axios({
     url,
     method: data ? 'POST' : 'GET',
