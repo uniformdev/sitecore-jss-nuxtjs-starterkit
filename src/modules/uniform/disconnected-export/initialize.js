@@ -5,8 +5,7 @@ const { getConfig } = require('../../../temp/config');
 module.exports = initialize;
 
 function initialize(moduleOptions) {
-  // we only want to run this module in disconnected mode
-  if (moduleOptions.jssMode !== 'disconnected') {
+  if (!moduleOptions.enabled) {
     return;
   }
 
