@@ -11,8 +11,7 @@
     "graphQLEndpointPath": "/api/uniform-jss",
     "language": "en",
     "appLanguages": [
-      "en",
-      "da-DK"
+      "en"
     ]
   },
   "scripts": {
