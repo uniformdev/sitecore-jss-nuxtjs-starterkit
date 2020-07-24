@@ -34,19 +34,47 @@ There are multiple reasons why we are using Nuxt.js in this context:
 
 ## Pre-requisites
 
+1. Node.js v10 or greater (check with `node -v`).
 1. `Uniform.Sitecore.zip` package provided by the folks @ Uniform ([contact us for details](mailto:hi@unfrm.io)).
 1. Uniform license key provided by the folks @ Uniform ([contact us for details](mailto:hi@unfrm.io)).
 1. npm token provided by the folks @ Uniform ([contact us for details](mailto:hi@unfrm.io)).
-1. Sitecore 9.x (9.0 -> 9.3) installed and up and running with Admin credentials.
+1. Sitecore 9.x (9.0 -> 9.3) installed and up and running with Admin credentials available.
 1. JSS.Server package (version dependent on your Sitecore version) installed and configured according to the official documentation.
+1. Recommended to install Sitecore JSS CLI:
+   
+   `npm i @sitecore-jss/sitecore-jss-cli -g`
 
-## Setting up the server-side
+## Getting started disconnected
 
-1. Install the provided `Uniform.Sitecore.zip` package via Sitecore Desktop => Installation Wizard.
+In this mode, you can do front-end development without the Sitecore back-end using Sitecore JSS Code-first workflow, learn more about this mode [here](https://jss.sitecore.com/docs/fundamentals/dev-workflows/code-first#code-first-workflow).
 
-1. If you don't have a Sitecore API key created for your JSS app yet, create and configure it according to the official docs [here](https://jss.sitecore.com/docs/getting-started/app-deployment).
+1. Set the `NPM_TOKEN` environment variable with the value we provided you with.
 
-   > This API key will be used for the `UNIFORM_API_KEY` environment variable value below.
+   You can use `$Env:NPM_TOKEN="your-npm-token here"` in PowerShell or `export NPM_TOKEN="your-npm-token here"` in Bash.
+
+   > This variable is used within the `.npmrc` file located next to `package.json`
+   > So alternatively, simply replace `${NPM_TOKEN}` within `.npmrc` file with the value we provided you with.
+
+   ```bash
+   //registry.npmjs.org/:_authToken=npm-token-guid
+   ```
+
+1. `npm install` from `/src` folder.
+
+1. To run the app, use `npm run start:disconnected` - without connection to Sitecore.
+
+   > In disconnected mode, the page content the app depends on is served by disconnected Layout Service from the YAML files in `src/data` folder.
+
+> NOTE: Disconnected mode export is currently unavailable, but on the roadmap.
+
+## Integrating with the server-side
+
+Once the Sitecore back-end is ready and available, you would need to configure Uniform and then you will be able to switch to being connected to the server-side.
+
+### Step 1: Server package installation and configuration
+
+1. Deploy config files for this sample JSS app by copying the files from this repo's `/src/sitecore/config` folder to your Sitecore installation's `App_Config\Include\zzz` folder.
+   > If you are not planning on using Unicorn for content item push to Sitecore, you would only need to deploy the "uniform-jss.config" file.
 
 1. Update your Sitecore instance's `App_Config\ConnectionStrings.config` file by adding the following two connection strings:
 
@@ -63,7 +91,7 @@ There are multiple reasons why we are using Nuxt.js in this context:
       <add name="Uniform.LicenseKey" connectionString="LICENSE-KEY-GOES-HERE" />
       ```
       
-1. `Optional` alternative place for Uniform connection strings. Since these connection strings may not change frequently in development environment, consider adding these connection strings globally to IIS Manager (stored in `C:\Windows\Microsoft.NET\Framework64\v4.0.30319\config\web.config`):
+      Optionally, consider an alternative place for Uniform connection strings. Since these connection strings may not change frequently in development environment, consider adding these connection strings globally to IIS Manager (stored in `C:\Windows\Microsoft.NET\Framework64\v4.0.30319\config\web.config`):
 
       1.  Open IIS Manager
       1.  Select your computer name in the tree on the left
@@ -79,55 +107,51 @@ There are multiple reasons why we are using Nuxt.js in this context:
          | connection-string-value
       ```
 
-### Optional - sample JSS app deployment
+1. Install the Uniform for Sitecore connector provided to you by Uniform team (`Uniform.Sitecore.zip` file) as a package via Sitecore Desktop => Installation Wizard.
 
-If you don't have a JSS app deployed, but want to experience Uniform, not a problem! Follow the steps below to deploy required configs and content items for this sample app.
+   #### Validate the the server-side setup
 
-1. Deploy configs.
+   Verify everything is working by making request to `http://your-sitecore-instance/uniform/api/content/website/map`
 
-   Copy the configs from `sitecore\config` to your Sitecore instances' `App_Config\Include\zzz` folder.
+   The last last part of the url above (`/website`) corresponds to the site name. So if you didn't deploy the sample JSS app from this repo using the steps above, this value will likely be different and will correspond to the site name your JSS app is associated with. If not sure, use `website`.
 
-1. Deploy content items.
+   The following response is expected (will be different if you are using another JSS app but JSON with the following structure is expected to be returned):
 
-- Option 1 (easiest): install [the `Uniform SitecoreJSS Demo-items` package](/sitecore/Uniform%20SitecoreJSS%20Demo-items.0.0.1.zip) from this repo's `sitecore\` folder using Installation Wizard.
+   ```json
+   {
+   "isPage": true,
+   "lastModified": "2020-03-16T17:34:16",
+   "revision": "5e40c005-c01e-4164-a555-59eb5a09d8eb",
+   "children": {
+      "about": {
+         "isPage": true,
+         "lastModified": "2020-03-16T17:34:16",
+         "revision": "748dc8f3-a897-4681-bd7d-54b2495190ba",
+         "children": {},
+         "name": "About",
+         "id": "0faa6199-bb54-455b-bacc-3b018c3fac1e",
+         "template": "CommonPage"
+      }
+   },
+   "name": "Home",
+   "id": "5505b7b1-b454-459e-9d36-06a4d89755ad",
+   "template": "CommonPage"
+   }
+   ```
 
-- Option 2: via [Unicorn](https://github.com/SitecoreUnicorn/Unicorn) (first, make sure Unicorn is installed and configured).
-  1. copy the contents of the `sitecore\serialization` folder to your Sitecore instance's `App_Data\uniform-jss` folder, so the destination paths look like this:
-     `\App_Data\uniform-jss\content` - `\App_Data\uniform-jss\layouts` - `\App_Data\uniform-jss\placeholders` - `\App_Data\uniform-jss\renderings` - `\App_Data\uniform-jss\templates`
-  1. Open `https://your-sitecore-host/unicorn.aspx` while being logged into Sitecore.
-  1. Click "Sync" the `Uniform.SitecoreJSS.Demo` configuration.
+### Step 2: Updating the nuxt.js app
 
-### Quick test of the server-side
+After the server-side is installed and configured, you will need to update your application to connect to the server-side.
 
-Verify everything is working by making request to `http://your-sitecore-instance/api/map/website` (or `http://your-sitecore-instance/api/map/uniform-jss` if you installed the sample site from this repo).
+1. Make sure you have `jss` CLI installed by running `jss --version` to check.
 
-The last last part of the url above (`/website` or `/uniform-jss`) corresponds to the site name. So if you didn't deploy the sample JSS app from this repo using the steps above, this value will likely be different and will correspond to the site name your JSS app is associated with. If not sure, use `website`.
+      If not, run `npm i @sitecore-jss/sitecore-jss-cli -g`.
 
-The following response is expected (will be different if you are using another JSS app but JSON with the following structure is expected to be returned):
+1. Run `jss setup` and follow the directions in CLI.
 
-```json
-{
-  "isPage": true,
-  "lastModified": "2020-03-16T17:34:16",
-  "revision": "5e40c005-c01e-4164-a555-59eb5a09d8eb",
-  "children": {
-    "about": {
-      "isPage": true,
-      "lastModified": "2020-03-16T17:34:16",
-      "revision": "748dc8f3-a897-4681-bd7d-54b2495190ba",
-      "children": {},
-      "name": "About",
-      "id": "0faa6199-bb54-455b-bacc-3b018c3fac1e",
-      "template": "CommonPage"
-    }
-  },
-  "name": "Home",
-  "id": "5505b7b1-b454-459e-9d36-06a4d89755ad",
-  "template": "CommonPage"
-}
-```
+   If you don't have a Sitecore API key created for your JSS app yet, create and configure it according to the official docs [here](https://jss.sitecore.com/docs/getting-started/app-deployment).
 
-## Setting up the app
+   > This API key will be used for the `UNIFORM_API_KEY` environment variable value below.
 
 1. Provide the Sitecore connection details in environment variables
 
@@ -159,26 +183,48 @@ The following response is expected (will be different if you are using another J
    ```
     NODE_TLS_REJECT_UNAUTHORIZED=0
    ```
-1. Set the `NPM_TOKEN` environment variable with the value we provided you with.
 
-   You can use `$Env:NPM_TOKEN="your-npm-token here"` in PowerShell or `export NPM_TOKEN="your-npm-token here"` in Bash.
+Now you are ready to develop connected to Sitecore back-end.
+Start development server with `npm start` and open `http://localhost:3000/` to access the app.
 
-   > This variable is used within the `.npmrc` file located next to `package.json`
-   > So alternatively, simply replace `${NPM_TOKEN}` within `.npmrc` file with the value we provided you with.
+### Step 3: Sample content deployment
 
-   ```bash
-   //registry.npmjs.org/:_authToken=npm-token-guid
-   ```
+**This step is optional**. If you don't have a JSS app deployed, but want to experience Uniform, not a problem! Follow the steps below to deploy required configs and content items for this sample app.
 
-1. Install all the dependencies with `npm install`
+1. Deploy configs.
 
-1. Configure JSS config with `jss setup` (skip the deployment secret as it won't be used).
+   Copy the configs from `sitecore\config` to your Sitecore instances' `App_Config\Include\zzz` folder.
 
-1. Start development server with `npm start` and open `http://localhost:3000/` to access the app.
+1. Deploy content items.
 
-## Static export
+- Option 1: install [the `Uniform SitecoreJSS Demo-items` package](/sitecore/Uniform%20SitecoreJSS%20Demo-items.0.0.1.zip) from this repo's `sitecore\` folder using Installation Wizard.
 
-Run `npm run export` to perform build and export of your JSS app into the `/out` folder.
+- Option 2: if you intend on using the JSS Code-first workflow:
+   - `jss setup`
+   - `jss deploy config`
+   - `jss deploy items -c`
+
+   This will perform JSS Code-first import of all developer artifacts as items as well as two content pages. Learn more about the Code-first workflow in the official Sitecore JSS docs [here](https://jss.sitecore.com/docs/fundamentals/dev-workflows/code-first#code-first-workflow). 
+
+- Option 3: via [Unicorn](https://github.com/SitecoreUnicorn/Unicorn) (first, make sure Unicorn is installed and configured).
+  1. copy the contents of the `sitecore\serialization` folder to your Sitecore instance's `App_Data\uniform-jss` folder, so the destination paths look like this:
+     `\App_Data\uniform-jss\content` - `\App_Data\uniform-jss\layouts` - `\App_Data\uniform-jss\placeholders` - `\App_Data\uniform-jss\renderings` - `\App_Data\uniform-jss\templates`
+  1. Open `https://your-sitecore-host/unicorn.aspx` while being logged into Sitecore.
+  1. Click "Sync" the `Uniform.SitecoreJSS.Demo` configuration.
+
+ > While this sample app is configured to serve content from master database (aka "Live mode"), when using "web" database for content, you may need to push some of these content items via workflow using Workbox to ensure those items are published to the "web" database.
+
+### Step 4: Publish content items (NEW)
+
+   > added on July 21, 2020
+
+   The site is configured to use the `web` database therefore the items need to be published there. 
+
+   **Note**, if using **JSS Code-first workflow**, the items are created in a **non-final workflow state**. It means they need to be either moved to the final workflow state (for example, all in one batch using the Workbox app) or the current workflow step can be made final.
+
+### Step 5: Test static site export
+
+Once the content for your app is available in your Sitecore instance, you can run `npm run export` to perform build and export of your JSS app into the `/out` folder.
 
 The process should complete with `"Export successful"`.
 
@@ -200,9 +246,22 @@ In meantime, there are multiple alternatives as to how you can configure media h
    - [Cloudinary](https://cloudinary.com/)
    - [Piio](http://piio.co/)
 
-## Deployment
+## Site deployment
 
-### Netlify
+Site deployment consists of two phases:
+1. Site export (also known as static site generation)
+1. Copy of the statically exported artifacts to the target delivery environment.
+
+This process can be initiated by:
+1. A Sitecore publish command (useful in UAT, production environments where content authoring takes place).
+
+1. Running export command in command line (useful in development and in CI)
+
+Below are the steps to configure site deployment depending on your target environment of choice.
+
+## Site deployment via command line
+
+#### Option 1: Netlify
 
 Netlify is known as a great platform for the JAMstack sites and it is not only the new origin for your built site, it is also the build environment.
 
@@ -217,7 +276,7 @@ Netlify is known as a great platform for the JAMstack sites and it is not only t
 
    > For convenience of your development environment, you may want to consider saving these as system environment variables instead (check [this guide](https://helpdeskgeek.com/how-to/create-custom-environment-variables-in-windows/) if unfamiliar with env variables).
 
-4. Run `npm run deploy:netlify` to perform build, export and deployment to Netlify ADN.
+4. Run `npm run deploy` to perform build, export and deployment to Netlify ADN.
 
    At the end of the process, the following message will be shown in console indicating success:
 
@@ -253,8 +312,12 @@ NPM_TOKEN=<the value of the npm token received from us>
 
 Since Netlify will connect to your Sitecore instance, consider setting up a tunnel to your local Sitecore instance if you don't have it deployed publicly yet with something like ngrok: `ngrok http -host-header="ABCsc.dev.local" ABCsc.dev.local:80`
 
-### Azure Blob Storage
+#### Option 2: Azure Blob Storage
 
+**Pre-requisites**:
+- Download [AzCopy](https://docs.microsoft.com/en-us/azure/storage/common/storage-use-azcopy-v10) tool and make it available on the same server that runs this nuxt app (for simplicity, copy it into the root of this application).
+
+**Configuration steps**:
 1. Provision a Blob Storage account in Azure in the desired region.
 
 1. Create a container called `$web`.
@@ -272,6 +335,8 @@ Since Netlify will connect to your Sitecore instance, consider setting up a tunn
 1. Add the following additional environment variables to the `.env` file located next to your `package.json` file.
 
    ```
+   # This is a path to azcopy, could be ./tools/azcopy.exe if you bring azcopy into the app root or any other path
+   AZCOPY_PATH=./azcopy.exe
 
    UNIFORM_PUBLISH_TARGET=azureblob
 
@@ -288,11 +353,12 @@ Since Netlify will connect to your Sitecore instance, consider setting up a tunn
 
    > The value for `AZURE_STORAGE_CONNECTION_STRING` can be retrieved from the "Access keys" page of your Azure Blob Storage account, under "Key 1 / Connection string".
 
-1. `npm run deploy:azure` to perform the app export and deployment of static application artifacts to your Azure Blob storage container.
+
+To trigger deployment, run `npm run deploy`. This will perform the static app export and deployment of the exported static application artifacts to your Azure Blob storage container.
 
 The static version of the JSS app is now expected to be served from this endpoint.
 
-### AWS S3
+#### Option 3: AWS S3
 
 1. Make sure you have the AWS credentials for a user with `AmazonS3FullAccess` policy. Specifically, the `Access key Id` and a `Secret access key`.
 
@@ -311,15 +377,36 @@ The static version of the JSS app is now expected to be served from this endpoin
 
    > For convenience of your development environment, you may want to consider saving these as system environment variables instead (check [this guide](https://helpdeskgeek.com/how-to/create-custom-environment-variables-in-windows/) if unfamiliar with env variables).
 
-1. Run `npm run deploy:aws`. This will provision the S3 bucket with "Static site hosting" settings and will deploy the contents of the `out` folder to it. At the end of the process, you should see the following in the console and the `aws.config.json` will be created in the project root:
+1. Run `npm run deploy`. This will provision the S3 bucket with "Static site hosting" settings and will deploy the contents of the `out` folder to it. At the end of the process, you should see the following in the console and the `aws.config.json` will be created in the project root:
 
    ```
    AwsS3PublishProvider deployed site files: out
    ```
 
-### Other deployment targets
+#### Other deployment targets
 
 Please [contact us](mailto:hi@unfrm.io) if your deployment to your CDN / hosting environment is not documented, it should be possible :)
+
+### Site deployment via Sitecore publish
+
+1. Ensure your site configuration corresponding to your JSS app has the `publishEndpoint` attribute with value pointing to your running Nuxt server with Uniform plugin:  
+
+   ```xml
+         <site name="uniform-jss"
+               ...
+               publishEndpoint="http://localhost:3000" />
+   ```
+
+1. Ensure `UNIFORM_MODE` environment variable is set to `mixed`.
+   ```
+   UNIFORM_MODE=mixed
+   ```
+
+1. Start this app with `npm start`.
+   
+   Now that Nuxt app is running, it is ready to accept deployment requests from your Sitecore Authoring server. 
+
+1. Run site publishing.
 
 ## Other things you can do
 
@@ -327,7 +414,7 @@ Please [contact us](mailto:hi@unfrm.io) if your deployment to your CDN / hosting
 
 - `npm run start`
 
-This will start Nuxt.js in development mode, JSS connected mode, and attach JSS Rendering Host middleware. JSS Rendering Host is needed for Preview and Experience Editor integrations.
+This will start Nuxt.js server under node and the app will work in SSR mode. This is needed for Preview and Experience Editor integrations.
 
 ### Setup with JSS Rendering Host
 
@@ -348,10 +435,6 @@ You need to setup your JSS app definition config in `uniform-jss.config`. Be sur
 ```
 
 Notice the `serverSideRenderingEngine` attribute is set to `http` and the `serverSideRenderingEngineEndpointUrl` is set to the host your Nuxt+JSS app is running on.
-
-### Configure deployment on Sitecore publish
-
-WIP
 
 ### Setting up Preview server
 
