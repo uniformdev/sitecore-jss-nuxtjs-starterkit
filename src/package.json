@@ -18,7 +18,6 @@
     "bootstrap": "node scripts/bootstrap.js",
     "deploy": "npm run export && node deploy.js",
     "export": "cross-env-shell JSS_MODE=connected NUXT_EXPORT=true \"npm-run-all --serial bootstrap nuxt:generate\"",
-    "export:disconnected": "cross-env-shell JSS_MODE=disconnected NUXT_EXPORT=true \"npm-run-all --serial bootstrap nuxt:generate\"",
     "generate-manifest": "jss manifest -c -d",
     "lint": "eslint --ext .js,.vue --ignore-path .gitignore .",
     "start": "cross-env-shell JSS_MODE=connected \"npm-run-all --serial bootstrap --parallel nuxt:dev watch-components\"",
