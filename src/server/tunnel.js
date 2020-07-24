@@ -1,26 +1,22 @@
-// Process values provided in `.env` file(s)
-const { config: dotenvConfig } = require('dotenv');
-dotenvConfig();
-
 const ngrok = require('ngrok');
 const { URL } = require('url');
-const { resolveServerUrls } = require('./util');
+const serverConfig = require('./server.config');
 
-const { server: serverUrl } = resolveServerUrls();
+const serverUrl = serverConfig.resolveServerUrl();
 
-startRenderHostTunnel(serverUrl.parts.hostname, {
+startTunnel(serverUrl.parts.hostname, {
   proto: serverUrl.parts.protocol,
   port: serverUrl.parts.port,
 })
   .then((tunnelUrl) => {
     const parsedTunnelUrl = new URL(tunnelUrl);
-    process.env.SERVER_TUNNEL_HOST_NAME = parsedTunnelUrl.hostname;
-    process.env.SERVER_TUNNEL_PORT = parsedTunnelUrl.port;
-    // node URL.protocol returns the protocal name along with a trailing `:`, we don't need that.
-    process.env.SERVER_TUNNEL_PROTOCOL = parsedTunnelUrl.protocol.replace(':', '');
+    process.env.SERVER_PUBLIC_HOST_NAME = parsedTunnelUrl.hostname;
+    process.env.SERVER_PUBLIC_PORT = parsedTunnelUrl.port;
+    // node URL.protocol returns the protocol name along with a trailing `:`, we don't need that.
+    process.env.SERVER_PUBLIC_PROTOCOL = parsedTunnelUrl.protocol.replace(':', '');
 
     // start the Express server
-    require('./index');
+    require('./server').start({ tunnelUrl });
   })
   .catch((err) => {
     console.error(err);
@@ -28,17 +24,14 @@ startRenderHostTunnel(serverUrl.parts.hostname, {
 
 // This function starts an ngrok tunnel that will expose the express server
 // via a public URL, e.g. https://13453.ngrok.io
-function startRenderHostTunnel(
-  renderHostname,
-  options = { port: 80, proto: 'http', quiet: false }
-) {
-  if (!renderHostname) {
+async function startTunnel(serverHostname, options = { port: 80, proto: 'http', quiet: false }) {
+  if (!serverHostname) {
     throw new Error(
-      'Unable to start render host tunnel as no hostname for the rendering host was specified.'
+      'Unable to start tunnel as no hostname for the underlying server was specified.'
     );
   }
 
-  const rewriteHost = `${renderHostname}:${options.port}`;
+  const rewriteHost = `${serverHostname}:${options.port}`;
   const finalOptions = {
     ...options,
     host_header: 'rewrite',
