@@ -102,6 +102,7 @@ const nuxtConfig = {
   },
   generate: {
     dir: 'out',
+    crawler: false,
   },
   server: {
     port: serverConfig.resolveListeningPort(),
