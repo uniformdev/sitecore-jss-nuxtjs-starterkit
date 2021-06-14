@@ -8,7 +8,7 @@ const { parseUniformServerConfig } = require('@uniformdev/common-server');
 const defaultConfig = {
   PORT: 3000,
   UNIFORM_API_DEFAULT_LANGUAGE: 'en',
-  UNIFORM_API_SITENAME: 'uniform-jss',
+  UNIFORM_API_SITENAME: 'uniform-jss-kit',
   UNIFORM_API_URL: 'http://localhost:3000',
   UNIFORM_DATA_URL: 'http://localhost:3000',
   UNIFORM_OPTIONS_DEBUG: false,
