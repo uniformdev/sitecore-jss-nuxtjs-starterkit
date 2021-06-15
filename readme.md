@@ -38,7 +38,7 @@ There are multiple reasons why we are using Nuxt.js in this context:
 1. `Uniform.Sitecore.zip` package provided by the folks @ Uniform ([contact us for details](mailto:hi@unfrm.io)).
 1. Uniform license key provided by the folks @ Uniform ([contact us for details](mailto:hi@unfrm.io)).
 1. npm token provided by the folks @ Uniform ([contact us for details](mailto:hi@unfrm.io)).
-1. Sitecore 9.x (9.0 -> 9.3) installed and up and running with Admin credentials available.
+1. Sitecore 9.x (9.0 -> 10) installed and up and running with Admin credentials available.
 1. JSS.Server package (version dependent on your Sitecore version) installed and configured according to the official documentation.
 1. Recommended to install Sitecore JSS CLI:
    
@@ -78,10 +78,10 @@ Once the Sitecore back-end is ready and available, you would need to configure U
 
 1. Update your Sitecore instance's `App_Config\ConnectionStrings.config` file by adding the following two connection strings:
 
-   - `uniform.api.token` with the `1234` value:
+   - `uniform.api.token` with the `12345` value:
 
      ```
-       <add name="uniform.api.token" connectionString="1234" />
+       <add name="uniform.api.token" connectionString="12345" />
      ```
 
      > This value will be used to secure the deployment endpoint during Sitecore publishing and should be changed to a secret value in non-developer environments. The same value should be used when setting the `UNIFORM_API_TOKEN` environment variable (see below).
@@ -160,21 +160,18 @@ After the server-side is installed and configured, you will need to update your 
    ```
    UNIFORM_API_KEY={guid of Sitecore JSS app API key item from the step above - same as you use for LayoutService}
    UNIFORM_API_URL=http://your-sc-host
-   UNIFORM_DATA_URL=http://your-sc-host
    ```
 
    There are more environment variables available to specify - see [`uniform.config.js`](/src/uniform.config.js) file in `/src` folder for all default values. Naturally, these environment variables can be tweaked according to your environment specific by corresponding entries to the `.env` file:
 
    ```
-   UNIFORM_API_TOKEN=1234
-   UNIFORM_API_SITENAME=uniform-jss
-   UNIFORM_API_DEFAULT_LANGUAGE=en
+   UNIFORM_API_TOKEN=12345
+   UNIFORM_API_SITENAME='uniform-jss-kit'
+   UNIFORM_API_MAPSERVICE='/uniform/api/content/${UNIFORM_API_SITENAME}/map'
    ```
    > The value of `UNIFORM_API_TOKEN` should match what was provided as value for the `uniform.api.token` query string during server-side setup.
 
    > Note that the value of `UNIFORM_API_SITENAME` variable will depend on whether you are deploying this sample app to your Sitecore instance or you are connecting to your existing JSS app. If the latter, use the name of the site associated with the JSS app you'd like to connect to.
-
-   > For multi-lingual solutions, if your are not using the default `en` language for your site's content, you will need to adjust the value of the `UNIFORM_API_DEFAULT_LANGUAGE` to the ISO code of the content language you are using.
 
    > Instead of specifying the `.env` file, you can use system environment variables instead.
 
@@ -304,9 +301,7 @@ The following environment variables are must haves:
 UNIFORM_API_KEY={guid of API key item from the step above}
 UNIFORM_API_TOKEN=1234
 UNIFORM_API_URL=http://your-sc-host
-UNIFORM_DATA_URL=http://your-sc-host
 UNIFORM_API_SITENAME=uniform-jss
-UNIFORM_API_DEFAULT_LANGUAGE=en
 NPM_TOKEN=<the value of the npm token received from us>
 ```
 
@@ -392,7 +387,7 @@ Please [contact us](mailto:hi@unfrm.io) if your deployment to your CDN / hosting
 1. Ensure your site configuration corresponding to your JSS app has the `publishEndpoint` attribute with value pointing to your running Nuxt server with Uniform plugin:  
 
    ```xml
-         <site name="uniform-jss"
+         <site name="uniform-jss-kit"
                ...
                publishEndpoint="http://localhost:3000" />
    ```
@@ -424,10 +419,10 @@ You need to setup your JSS app definition config in `uniform-jss.config`. Be sur
 
 ```
 
-<app name="uniform-jss"
-     sitecorePath="/sitecore/content/uniform-jss"
+<app name="uniform-jss-kit"
+     sitecorePath="/sitecore/content/uniform-jss-kit"
      useLanguageSpecificLayout="true"
-     graphQLEndpoint="/api/uniform-jss"
+     graphQLEndpoint="/api/uniform-jss-kit"
      serverSideRenderingEngine="http"
      serverSideRenderingEngineEndpointUrl="http://localhost:3000/jss-render"
      inherits="defaults" />
