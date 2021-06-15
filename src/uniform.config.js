@@ -19,7 +19,7 @@ const defaultConfig = {
 
 const defaultServerConfig = {
   ...defaultConfig,
-  UNIFORM_API_TOKEN: '1234',
+  UNIFORM_API_TOKEN: '12345',
   UNIFORM_MODE: 'mixed',
   UNIFORM_PUBLISH_FAKE_PUBLIC_URL: 'http://localhost:3000',
   UNIFORM_PUBLISH_PREFETCH_ENABLED: false,
