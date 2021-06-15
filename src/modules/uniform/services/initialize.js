@@ -51,9 +51,15 @@ function setupMiddleware(nuxtApp, moduleOptions) {
 
     const buildAndExportEngine = new NuxtBuildAndExportEngine(uniformServerConfig);
 
+    const publishProviderOptions = {
+      config: uniformServerConfig,
+      logger: consoleLogger,
+    };
+
     const options = {
       uniformServerConfig,
-      publishProvider: createPublishProvider(),
+      publishProvider: createPublishProvider(publishProviderOptions),
+      createPublishProvider: createPublishProvider
     };
 
     attachUniformServicesToServer(

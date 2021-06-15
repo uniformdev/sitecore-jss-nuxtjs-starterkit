@@ -1,7 +1,7 @@
 template: CommonPage
 name: About
 placeholders:
-  uniform-jss-content:
+  uniform-jss-kit-content:
     - componentName: Hero
       id: global-default-hero-2
       uid: 70886a78-86e8-48b8-b023-46d0816c8400

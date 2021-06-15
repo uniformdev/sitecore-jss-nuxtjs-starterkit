@@ -15,9 +15,9 @@ name: Home
 template: CommonPage
 icon: Network/16x16/home.png
 
-# Define the page layout starting at the root placeholder - in this case, 'uniform-jss-content'
+# Define the page layout starting at the root placeholder - in this case, 'uniform-jss-kit-content'
 # root placeholder names are defined in the package.json config section (required for Sitecore deployment)
 placeholders:
-  uniform-jss-content:
+  uniform-jss-kit-content:
     - id: global-default-hero
       uid: 70886a78-86e8-48b8-b023-46d0816c8400

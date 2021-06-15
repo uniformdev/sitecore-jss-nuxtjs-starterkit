@@ -11,7 +11,7 @@
       :on-cancel="handleLoadingCancel"
       :is-full-page="true"
     />
-    <sc-placeholder name="uniform-jss-content" :rendering="routeData" />
+    <sc-placeholder name="uniform-jss-kit-content" :rendering="routeData" />
     <Footer />
   </div>
 </template>
