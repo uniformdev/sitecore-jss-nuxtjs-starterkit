@@ -35,8 +35,8 @@ export default {
       return (
         this.field &&
         this.field.value &&
-        this.props.field.value.href &&
-        this.props.field.value.href.startsWith('/')
+        this.field.value.href &&
+        this.field.value.href.startsWith('/')
       );
     },
     isEditing() {
