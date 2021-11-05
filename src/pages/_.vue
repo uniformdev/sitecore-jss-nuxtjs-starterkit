@@ -9,7 +9,14 @@
       :active.sync="routeDataLoading"
       :can-cancel="true"
       :on-cancel="handleLoadingCancel"
-      :is-full-page="true"
+      :is-full-page="fullPage"
+      :height="height"
+      :width="width"
+      :color="color"
+      :loader="loader"
+      :background-color="bgColor"
+      :transition="transition"
+      :opacity="opacity"
     />
     <sc-placeholder name="uniform-jss-kit-content" :rendering="routeData" />
     <Footer />
@@ -25,6 +32,19 @@ import Footer from '../components/Footer/Footer';
 import LoadingOverlay from 'vue-loading-overlay';
 
 export default {
+  data() {
+    return {
+      fullPage: true,
+      canCancel: true,
+      loader: '',
+      color: '#fff',
+      bgColor: '#fff',
+      height: 128,
+      width: 128,
+      transition: 'fade',
+      opacity: 0.3,
+    };
+  },
   components: {
     ScPlaceholder: Placeholder,
     LoadingOverlay,
