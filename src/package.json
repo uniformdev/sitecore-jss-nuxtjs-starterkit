@@ -46,7 +46,7 @@
     "express": "^4.16.4",
     "follow-redirects": "^1.10.0",
     "loglevel": "^1.6.7",
-    "nuxt": "^2.15.6",
+    "nuxt": "^2.15.8",
     "set-cookie-parser": "^2.4.3",
     "vue-loading-overlay": "^3.3.2"
   },
